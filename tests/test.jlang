@@ -1,0 +1,5 @@
+if(true) {
+    var test = "Hello world!";
+    print(var);
+    print(var == "Hello world");
+}
