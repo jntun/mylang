@@ -70,6 +70,8 @@ func (scan *Scanner) scanToken() {
 			break
 		}
 		scan.addToken(Minus)
+	case '*':
+		scan.addToken(Star)
 	case '/':
 		scan.addToken(Slash)
 	case '=':
