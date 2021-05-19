@@ -134,7 +134,7 @@ func TestPeek(t *testing.T) {
 	scan := Scanner{}
 	scan.src = input
 
-	// pretending we are in the big switch statement in scanner.go (i.e: switch scan.advance())
+	// pretending we are in the big switch statement in scanner.go (i.e: switch scan.scanToken())
 	scan.advance()
 	// now this is where we would be invoking a peek()
 	if !(scan.peek(byte(expected))) {
