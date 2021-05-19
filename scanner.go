@@ -2,7 +2,7 @@ package main
 
 import "log"
 
-// Scanner
+// Scanner is how a Jlang input string gets scanned and tokenized
 type Scanner struct {
 	src     string
 	start   int
@@ -13,6 +13,8 @@ type Scanner struct {
 	Errors  []error
 }
 
+// Scan takes an input string and either returns a Tokenized array or an error specifying why it's
+// an invalid input sequence to be scanned.
 func (scan *Scanner) Scan(input string) ([]Token, error) {
 	scan.tokens = make([]Token, 0)
 	scan.src = input

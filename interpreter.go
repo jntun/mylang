@@ -24,8 +24,8 @@ func (intptr *Interpreter) Interpret(input string) error {
 	if err != nil {
 		return err
 	}
-	if len(intptr.p.errors) > 1 {
-		for i, err2 := range intptr.p.errors {
+	if len(intptr.p.Errors) > 1 {
+		for i, err2 := range intptr.p.Errors {
 			i++
 			fmt.Printf("Error %d: %s\n", i, err2)
 		}

@@ -4,13 +4,16 @@ import (
 	"log"
 )
 
+// Parser is how a Jlang token sequence gets parsed and turned into Expressions
 type Parser struct {
 	src     []Token
-	current uint64
+	current int
 	error   error
-	errors  []error
+	Errors  []error
 }
 
+// Parse takes a sequence of scanned Tokens and turns them into a corresponding Expression
+// If the parser is unable to form a valid Expression, it returns an error specifying why it couldn't
 func (p *Parser) Parse(tokens []Token) (Expression, error) {
 	p.current = 0
 	p.src = tokens
@@ -107,7 +110,7 @@ func (p *Parser) primary() Expression {
 		return Grouping{expr}
 	}
 
-	p.hadError(p.previous(), "Expected expression.")
+	p.error = p.hadError(p.previous(), "Expected expression.")
 	return nil
 }
 
@@ -151,7 +154,7 @@ func (p *Parser) consume(tokenType int, msg string) *Token {
 }
 
 func (p *Parser) peek() Token {
-	if p.current > uint64(len(p.src)-1) {
+	if p.current > len(p.src)-1 {
 		return p.src[len(p.src)-1]
 	}
 	return p.src[p.current]
@@ -170,8 +173,8 @@ func (p *Parser) isAtEnd() bool {
 
 func (p *Parser) hadError(token Token, msg string) ParseError {
 	err := ParseError{token, msg}
-	p.errors = append(p.errors, err)
-	RuntimeError(err)
+	p.Errors = append(p.Errors, err)
+	//RuntimeError(err)
 	return err
 }
 
