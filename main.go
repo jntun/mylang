@@ -31,7 +31,7 @@ func repl() {
 	reader := bufio.NewReader(os.Stdin)
 	input, err := reader.ReadString('\n')
 	if err != nil {
-		fmt.Println("Error occured - rs", err)
+		fmt.Println("Invalid input: ", err)
 	}
 
 	err = interpreter.Interpret(input)
