@@ -11,11 +11,16 @@ func (err ScanError) Error() string {
 }
 
 type ParseError struct {
-	err error
+	token Token
+	msg   string
 }
 
 func (err ParseError) Error() string {
-	return fmt.Sprintf("Parse error: %s", err.err)
+	if err.token.is(EOF) {
+		return fmt.Sprintf("%d at end %s", err.token.Line, err.msg)
+	} else {
+		return fmt.Sprintf("%d at '%s' %s", err.token.Line, err.token.Lexeme, err.msg)
+	}
 }
 
 // UnclosedStringError is when the scanner is attempting to scan a string lexeme but never reaches a closing (right) closing '"'
@@ -58,9 +63,8 @@ func (err FileReadFailure) Error() string {
 	return fmt.Sprintf("failure to read file %s: %s", err.Filepath, err.Err)
 }
 
-
- // InternalError is a generic error type for any subsystem to return on a failure of some
- // generic functionality.
+// InternalError is a generic error type for any subsystem to return on a failure of some
+// generic functionality.
 /*
 +----------------------------------------------+
 | 	    	    Code   Table 		           |

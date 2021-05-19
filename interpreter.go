@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"reflect"
 )
 
 // TODO Logging system for the interpreter
@@ -20,17 +21,18 @@ func (intptr *Interpreter) Interpret(input string) error {
 	}
 
 	ast, err := intptr.p.Parse(append(tokens, Token{"EOF", EOF, tokens[len(tokens)-1].Line}))
-	if len(intptr.p.errors) != 0 {
+	if err != nil {
+		return err
+	}
+	if len(intptr.p.errors) > 1 {
 		for i, err2 := range intptr.p.errors {
+			i++
 			fmt.Printf("Error %d: %s\n", i, err2)
 		}
 	}
 
-	if err != nil {
-		return err
-	}
-
-	fmt.Println(ast)
+	fmt.Println(reflect.TypeOf(ast))
+	fmt.Println(reflect.ValueOf(ast))
 	return nil
 }
 

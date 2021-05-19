@@ -1,129 +1,204 @@
 package main
 
 import (
-	"fmt"
 	"log"
 )
 
 type Parser struct {
-	src      []Token
-	ast      []Node
-	current  uint64
-	tokenMap map[int][]func(t Token) error // maps a TokenType(int) to a group of monads that are interested in the given type
-	fatal    error
-	errors   []error
+	src     []Token
+	current uint64
+	error   error
+	errors  []error
 }
 
-func (p *Parser) init() {
+func (p *Parser) Parse(tokens []Token) (Expression, error) {
 	p.current = 0
-	p.ast = make([]Node, 0)
-	p.tokenMap = make(map[int][]func(Token) error)
-	fmt.Println("Setting grammar map...")
-	for key, _ := range MasterTokenMap {
-		p.tokenMap[key] = make([]func(Token) error, 0)
-	}
-	p.HookMonad(Number, p.number)
-	p.HookMonad(LeftParen, p.grouping)
-	p.HookMonad(LeftBrace, p.grouping)
-}
-
-func (p *Parser) Parse(tokens []Token) ([]Node, error) {
-	p.init()
 	p.src = tokens
-	for !p.isAtEnd() {
-		p.parse()
-		if p.fatal != nil {
-			return nil, p.fatal
-		}
+	expr := p.parse()
+	if expr == nil {
+		return nil, p.error
 	}
 
-	p.ast = append(p.ast, Literal{Token{"", EOF, p.src[len(p.src)-1].Line}})
-	return p.ast, nil
+	return *expr, nil
 }
 
-func (p *Parser) parse() {
-	token := p.consume()
-	// Grab all monads registered with this token
-	monads, found := p.tokenMap[token.Type]
-	if !found { // FIXME: should check if tokenMap has been populated already
-		return
+func (p *Parser) parse() *Expression {
+	expr := p.expression()
+	// We don't need no try-catch :^)
+	if p.error != nil {
+		return nil
 	}
-	// Go through and call all the monads
-	for _, monad := range monads {
-		err := monad(token)
-		if err != nil {
-			p.errors = append(p.errors, err)
-			return
-		}
-	}
+	return &expr
 }
 
-func (p *Parser) consume() Token {
-	token := p.src[p.current]
-	p.current++
-	return token
+/********** Recursive descent parsing **********/
+func (p *Parser) expression() Expression {
+	return p.equality()
+}
+
+func (p *Parser) equality() Expression {
+	expr := p.comparison()
+	for p.match(BangEqual, EqualEqual) {
+		op := Operator{p.previous()}
+		right := p.comparison()
+		expr = Binary{expr, op, right}
+	}
+	return expr
+}
+
+func (p *Parser) comparison() Expression {
+	expr := p.term()
+	for p.match(Greater, GreaterEqual, Less, LessEqual) {
+		op := Operator{p.previous()}
+		right := p.term()
+		expr = Binary{expr, op, right}
+	}
+
+	return expr
+}
+
+func (p *Parser) term() Expression {
+	expr := p.factor()
+	for p.match(Minus, Plus) {
+		op := Operator{p.previous()}
+		right := p.factor()
+		expr = Binary{expr, op, right}
+	}
+	return expr
+}
+func (p *Parser) factor() Expression {
+	expr := p.unary()
+	for p.match(Slash, Star) {
+		op := Operator{p.previous()}
+		right := p.unary()
+		expr = Binary{expr, op, right}
+	}
+	return expr
+}
+
+func (p *Parser) unary() Expression {
+	if p.match(Bang, Minus) {
+		op := Operator{p.previous()}
+		right := p.unary()
+		return Unary{op, right}
+	}
+
+	return p.primary()
+}
+
+func (p *Parser) primary() Expression {
+	if p.match(False) {
+		return Literal{p.previous()}
+	}
+	if p.match(True) {
+		return Literal{p.previous()}
+	}
+	if p.match(Nil) {
+		return Literal{p.previous()}
+	}
+
+	if p.match(Number, String) {
+		return Literal{p.previous()}
+	}
+
+	if p.match(LeftParen) {
+		expr := p.expression()
+		p.consume(RightParen, "Expect ')' after expression.")
+		return Grouping{expr}
+	}
+
+	p.hadError(p.previous(), "Expected expression.")
+	return nil
+}
+
+/******* Scanning state functions *********/
+func (p *Parser) advance() Token {
+	if !p.isAtEnd() {
+		p.current++
+	}
+	return p.previous()
+}
+
+func (p *Parser) check(tokenType int) bool {
+	if p.isAtEnd() {
+		return false
+	}
+	if p.peek().is(tokenType) {
+		return true
+	}
+
+	return false
+}
+
+func (p *Parser) match(types ...int) bool {
+	for _, token := range types {
+		if p.check(token) {
+			p.advance()
+			return true
+		}
+	}
+	return false
+}
+
+func (p *Parser) consume(tokenType int, msg string) *Token {
+	if p.check(tokenType) {
+		t := p.advance()
+		return &t
+	}
+
+	p.hadError(p.peek(), msg)
+	return nil
 }
 
 func (p *Parser) peek() Token {
 	if p.current > uint64(len(p.src)-1) {
 		return p.src[len(p.src)-1]
 	}
-	return p.src[p.current+1]
+	return p.src[p.current]
 }
 
-// seek scans until it reaches the end of the src
-// or finds a corresponding token's type that matches the t parameter
-func (p *Parser) seek(t int) error {
-	for !p.isAtEnd() {
-		if a := p.consume(); a.is(t) {
-			return nil
-		}
+func (p *Parser) previous() Token {
+	if p.current == 0 {
+		return p.src[0]
 	}
-
-	return InternalError{21, "parser.seek() reached end of src input"}
+	return p.src[p.current-1]
 }
 
-/********** AST Node parsing implementation **********/
-func (p *Parser) number(t Token) error {
-	p.ast = append(p.ast, Literal{t})
-	return nil
-}
-
-func (p *Parser) grouping(t Token) error {
-	switch t.Type {
-	case LeftParen:
-		if err := p.seek(RightParen); err != nil {
-			return err
-		}
-	case LeftBrace:
-		if err := p.seek(RightBrace); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (p *Parser) expression(t Token) error {
-	return nil
-}
-
-/********* Utility functions ************/
 func (p *Parser) isAtEnd() bool {
-	return p.current >= uint64(len(p.src))
+	return p.peek().is(EOF)
+}
+
+func (p *Parser) hadError(token Token, msg string) ParseError {
+	err := ParseError{token, msg}
+	p.errors = append(p.errors, err)
+	RuntimeError(err)
+	return err
+}
+
+func (p *Parser) sync() {
+	p.advance()
+
+	for !p.isAtEnd() {
+		if p.previous().is(Semicolon) {
+			return
+		}
+
+		switch p.peek().Type {
+		case Class:
+		case Function:
+		case Var:
+		case For:
+		case If:
+		case While:
+		case Print:
+		case Return:
+			return
+		}
+
+		p.advance()
+	}
 }
 
 func (p *Parser) flush() {
 	log.Println("Flushing parser...")
-	p.ast = p.ast[:0]
-}
-
-func (p *Parser) HookMonad(tokenType int, monad func(Token) error) int {
-	/* TODO: config for statically allocating monads vs dynamically at runtime (and benchmarks one day...)
-	if p.tokenMap[tokenType] == nil {
-		p.tokenMap[tokenType] = make([]func(Token) error, 0)
-	}*/
-	p.tokenMap[tokenType] = append(p.tokenMap[tokenType], monad)
-	fmt.Printf("Hooking monad for '%s' - %d listeners\n", MasterTokenMap[tokenType], len(p.tokenMap[tokenType]))
-	return len(p.tokenMap) - 1
 }

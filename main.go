@@ -34,13 +34,10 @@ func repl() {
 		fmt.Println("Error occured - rs", err)
 	}
 
-	fmt.Println(string(input[len(input)-2]))
-
 	err = interpreter.Interpret(input)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 	}
-
 }
 
 // TODO actual error system (maybe in interpreter?)

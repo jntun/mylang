@@ -14,6 +14,7 @@ type Scanner struct {
 }
 
 func (scan *Scanner) Scan(input string) ([]Token, error) {
+	scan.tokens = make([]Token, 0)
 	scan.src = input
 	scan.start = 0
 	scan.current = 0

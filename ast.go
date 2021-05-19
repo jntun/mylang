@@ -8,13 +8,11 @@ import (
 
 type Expression interface{}
 
-// A Literal is a number, string, boolean, or nil
-type Literal struct{ Token }
+type Equality struct{}
+type Primary struct{}
 
 type Grouping struct {
-	Left  Token
-	Expr  Expression
-	Right Token
+	Expr Expression
 }
 type Unary struct {
 	Op   Operator
@@ -25,7 +23,10 @@ type Binary struct {
 	Op    Operator
 	Right Expression
 }
-type Operator struct{ Token *Token }
+type Operator struct{ Token Token }
+
+// A Literal is a number, string, boolean, or nil
+type Literal struct{ Token }
 
 // Value is the base atom for all derived jlang types
 // Different type(s) implementations are determined at run time
@@ -33,10 +34,10 @@ type Value interface{}
 
 // Node is a valid AST node in a Parser
 type Node interface {
-	Value() (Value, error)
+	get() (Value, error)
 }
 
-func (l Literal) Value() (Value, error) {
+func (l Literal) get() (Value, error) {
 	switch l.Type {
 	case Number:
 		if strings.Contains(l.Lexeme, ".") {
@@ -55,5 +56,5 @@ func (l Literal) Value() (Value, error) {
 		return "EOF", nil
 	}
 
-	return nil, ParseError{fmt.Errorf("Unable to match literal %s, with a known value", l.Token.Lexeme)}
+	return nil, fmt.Errorf("Unable to match literal %s, with a known value", l.Token.Lexeme)
 }
