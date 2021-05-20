@@ -42,15 +42,15 @@ func (err UnknownToken) Error() string {
 	return fmt.Sprintf("unknown token %s on line %d", err.lexeme, err.line)
 }
 
-// UnknownFile is when trying to veryify that a file exists (before opening for r/w),
-// if we can't find it we give an UnkownFile error
+// UnknownFile is when trying to verify that a file exists (before opening for r/w),
+// if we can't find it we give an UnknownFile error
 type UnknownFile struct {
 	Filepath string
 	Err      error
 }
 
 func (err UnknownFile) Error() string {
-	return fmt.Sprintf("unable to find file %s\n\t\"%s\"", err.Filepath, err.Err)
+	return fmt.Sprintf("Unable to find file %s\n\t\"%s\"", err.Filepath, err.Err)
 }
 
 // FileReadFailure is when trying to read a file and we fail
