@@ -128,6 +128,51 @@ func TestScanFor(t *testing.T) {
 	}
 }
 
+func TestScanArithmetic(t *testing.T) {
+	input, err := openFile("tests/arithmetic.jlang")
+	if err != nil {
+		t.Error(err)
+	}
+	scan := Scanner{}
+	tokens, err := scan.Scan(*input)
+	if err != nil {
+		t.Error(err)
+	}
+
+	expectedTokens := []Token{
+		Token{"2", 23, 1},
+		Token{"*", 8, 1},
+		Token{"(", 0, 1},
+		Token{"3", 23, 1},
+		Token{"*", 8, 1},
+		Token{"10", 23, 1},
+		Token{")", 1, 1},
+		Token{"/", 7, 1},
+		Token{"3", 23, 1},
+		Token{";", 6, 1},
+		Token{"2", 23, 2},
+		Token{"*", 8, 2},
+		Token{"(", 0, 2},
+		Token{"3", 23, 2},
+		Token{"*", 8, 2},
+		Token{"10", 23, 2},
+		Token{")", 1, 2},
+		Token{"/", 7, 2},
+		Token{"3", 23, 2},
+		Token{"==", 16, 2},
+		Token{"20", 23, 2},
+		Token{";", 6, 2},
+		Token{"3.14", 23, 3},
+		Token{"*", 8, 3},
+		Token{"3", 23, 3},
+		Token{";", 6, 3},
+	}
+
+	if matched, got, expect := tokenMatch(t, tokens, expectedTokens); !matched {
+		gotExpectError(t, got, expect)
+	}
+}
+
 func TestPeek(t *testing.T) {
 	input := "xa"
 	expected := 'a'
@@ -165,14 +210,25 @@ func TestMatchStr(t *testing.T) {
 	t.Log(tokens)
 }
 
+func BenchmarkScanner(b *testing.B) {
+	input := "" +
+		"for(var i=0; i < 5; i++) {\n" +
+		"print(i);\n" +
+		"}"
+	scanner := Scanner{}
+	for i := 0; i < b.N; i++ {
+		scanner.Scan(input)
+	}
+}
+
 func tokenMatch(t *testing.T, tokens []Token, expected []Token) (bool, *Token, *Token) {
 	if len(tokens) != len(expected) {
-		t.Errorf("tokens is not the same length as expected: %d - %d", len(tokens), len(expected))
+		t.Errorf("tokens are not the same length as expected: %d - %d", len(tokens), len(expected))
 		return false, nil, nil
 	}
 
 	for i, token := range expected {
-		t.Logf("matching: | expected: %s @%d | got: %s @%d|", token, token.Line, tokens[i], tokens[i].Line)
+		t.Logf("matching: | expected: %s | got: %s |", token, tokens[i])
 		if token == tokens[i] {
 			t.Log(" - match\n")
 			continue
