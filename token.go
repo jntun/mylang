@@ -50,6 +50,8 @@ const (
 	EOF
 )
 
+// Token is a parsed sequence of character terminal(s)
+// TODO: maybe store column position as well?
 type Token struct {
 	Lexeme string
 	Type   int
@@ -115,4 +117,9 @@ func (t Token) TypeString() string {
 	}
 
 	return "no_type_str"
+}
+
+// A go fmtd Token array output, useful for making tests
+func (t Token) FmtString() string {
+	return fmt.Sprintf("Token{\"%s\", %d, %d},", t.Lexeme, t.Type, t.Line)
 }
