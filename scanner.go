@@ -132,12 +132,17 @@ func (scan *Scanner) multi(val byte) {
 		scan.addToken(Print)
 		return
 	}
-	if val == 'v' && scan.matchStr("ar ") {
+	if val == 'v' && scan.matchStr("ar") {
 		scan.addToken(Var)
 		return
 	}
 	if val == 'r' && scan.matchStr("eturn") {
 		scan.addToken(Return)
+		return
+	}
+
+	if val == 'n' && scan.matchStr("il") {
+		scan.addToken(Nil)
 		return
 	}
 

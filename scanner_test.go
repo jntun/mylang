@@ -48,7 +48,7 @@ func TestScanDoubleOperator(t *testing.T) {
 	}
 
 	expectedTokens := []Token{
-		Token{"var ", Var, 1},
+		Token{"var", Var, 1},
 		Token{"val", Identifier, 1},
 		Token{"=", Equal, 1},
 		Token{"1", Number, 1},
@@ -100,7 +100,7 @@ func TestScanFor(t *testing.T) {
 	expectedTokens := []Token{
 		Token{"for", For, 1},
 		Token{"(", LeftParen, 1},
-		Token{"var ", Var, 1},
+		Token{"var", Var, 1},
 		Token{"i", Identifier, 1},
 		Token{"=", Equal, 1},
 		Token{"0", Number, 1},
@@ -199,7 +199,7 @@ func TestMatchStr(t *testing.T) {
 		Token{"{", LeftBrace, 1},
 		Token{"true", True, 1},
 		Token{"print", Print, 1},
-		Token{"var ", Var, 1},
+		Token{"var", Var, 1},
 		Token{"}", RightBrace, 1},
 	}
 
