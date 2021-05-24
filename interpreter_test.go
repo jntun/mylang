@@ -4,6 +4,12 @@ import (
 	"testing"
 )
 
+func TestInterpretArithmetic(t *testing.T) {
+	if err := genFile("tests/arithmetic.jlang"); err != nil {
+		t.Error(err)
+	}
+}
+
 func TestInterpretNumeric(t *testing.T) {
 	if err := genFile("tests/numeric.jlang"); err != nil {
 		t.Error(err)
