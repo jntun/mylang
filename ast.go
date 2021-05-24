@@ -32,11 +32,6 @@ type Literal struct{ Token }
 // Different type(s) implementations are determined at run time
 type Value interface{}
 
-// Node is a valid AST node in a Parser
-type Node interface {
-	get() (Value, error)
-}
-
 func (l Literal) get() (Value, error) {
 	switch l.Type {
 	case Number:
