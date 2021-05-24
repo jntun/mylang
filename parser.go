@@ -7,7 +7,7 @@ import (
 // Parser is how a Jlang token sequence gets parsed and turned into Expressions
 type Parser struct {
 	src     []Token
-	current int
+	current uint
 	error   error
 	Errors  []error
 }
@@ -154,7 +154,7 @@ func (p *Parser) consume(tokenType int, msg string) *Token {
 }
 
 func (p *Parser) peek() Token {
-	if p.current > len(p.src)-1 {
+	if p.current > uint(len(p.src)-1) {
 		return p.src[len(p.src)-1]
 	}
 	return p.src[p.current]

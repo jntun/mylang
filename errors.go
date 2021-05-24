@@ -25,7 +25,7 @@ func (err ParseError) Error() string {
 
 // UnclosedStringError is when the scanner is attempting to scan a string lexeme but never reaches a closing (right) closing '"'
 type UnclosedString struct {
-	line int
+	line uint
 }
 
 func (err UnclosedString) Error() string {

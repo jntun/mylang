@@ -5,9 +5,9 @@ import "log"
 // Scanner is how a Jlang input string gets scanned and tokenized
 type Scanner struct {
 	src     string
-	start   int
-	current int
-	line    int
+	start   uint
+	current uint
+	line    uint
 	tokens  []Token
 	Fatal   error
 	Errors  []error
@@ -212,7 +212,7 @@ func (scan *Scanner) seek(expected byte) error {
 }
 
 func (scan *Scanner) isAtEnd() bool {
-	return scan.current >= len(scan.src)
+	return scan.current >= uint(len(scan.src))
 }
 
 func (scan *Scanner) isNumeric() bool {

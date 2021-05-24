@@ -55,7 +55,7 @@ const (
 type Token struct {
 	Lexeme string
 	Type   int
-	Line   int
+	Line   uint
 }
 
 func (t Token) is(ta int) bool {
