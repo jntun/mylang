@@ -14,6 +14,9 @@ type Interpreter struct {
 	p *Parser
 }
 
+// Interpret accepts an input string and attempts to execute the given sequence
+// If a fatal error is encountered at any point, the Interpreter will break out and return an error
+// describing the problem
 func (intptr *Interpreter) Interpret(input string) error {
 	tokens, err := intptr.s.Scan(input)
 	if err != nil {
@@ -31,11 +34,12 @@ func (intptr *Interpreter) Interpret(input string) error {
 		}
 	}
 
-	fmt.Println(reflect.TypeOf(ast))
 	fmt.Println(reflect.ValueOf(ast))
+	//fmt.Println(ast.(Binary))
 	return nil
 }
 
+// File accepts a direct source file path, reads it, and then calls Interpret() with the file string
 func (intptr *Interpreter) File(filepath string) error {
 	//log.Printf("Scanning file %s...\n", filepath)
 	src, err := openFile(filepath)
