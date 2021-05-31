@@ -22,17 +22,13 @@ func TestScanFunc(t *testing.T) {
 		Token{")", RightParen, 1},
 		Token{"{", LeftBrace, 1},
 		Token{"return", Return, 2},
-		Token{"\"test\"", String, 2},
+		Token{"test", String, 2},
 		Token{";", Semicolon, 2},
 		Token{"}", RightBrace, 3},
 	}
 
 	if matched, got, expect := tokenMatch(t, tokens, expectedTokens); !matched {
 		gotExpectError(t, got, expect)
-	}
-
-	for i, token := range tokens {
-		t.Log(token, "-", expectedTokens[i])
 	}
 }
 
@@ -83,7 +79,7 @@ func TestScanDoubleOperator(t *testing.T) {
 		gotExpectError(t, got, expect)
 	}
 
-	t.Log(tokens)
+	//t.Log(tokens)
 }
 
 func TestScanFor(t *testing.T) {
@@ -115,7 +111,7 @@ func TestScanFor(t *testing.T) {
 		Token{"{", LeftBrace, 1},
 		Token{"print", Print, 2},
 		Token{"(", LeftParen, 2},
-		Token{"\"test\"", String, 2},
+		Token{"test", String, 2},
 		Token{",", Comma, 2},
 		Token{"i", Identifier, 2},
 		Token{")", RightParen, 2},
@@ -228,9 +224,9 @@ func tokenMatch(t *testing.T, tokens []Token, expected []Token) (bool, *Token, *
 	}
 
 	for i, token := range expected {
-		t.Logf("matching: | expected: %s | got: %s |", token, tokens[i])
+		//t.Logf("matching: | expected: %s | got: %s |", token, tokens[i])
 		if token == tokens[i] {
-			t.Log(" - match\n")
+			//t.Log(" - match\n")
 			continue
 		}
 		t.Log(" - no match\n")

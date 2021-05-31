@@ -1,6 +1,8 @@
 package main
 
-import "log"
+import (
+	"log"
+)
 
 // Scanner is how a Jlang input string gets scanned and tokenized
 type Scanner struct {
@@ -126,6 +128,10 @@ func (scan *Scanner) multi(val byte) {
 			scan.addToken(Function)
 			return
 		}
+		if scan.matchStr("alse") {
+			scan.addToken(False)
+			return
+		}
 	}
 
 	if val == 'p' && scan.matchStr("rint") {
@@ -163,7 +169,12 @@ func (scan *Scanner) stringParse() {
 		scan.Fatal = UnclosedString{scan.line}
 		return
 	}
+
+	// Temporarily moves the addToken() consume to *inside* the quotation marks "X____________Y" X=start Y=current
+	scan.start++
+	scan.current--
 	scan.addToken(String)
+	scan.current++
 }
 
 func (scan *Scanner) addToken(tokenType int) {
