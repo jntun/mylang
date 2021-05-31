@@ -1,6 +1,18 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"reflect"
+)
+
+type InvalidTypeAddition struct {
+	Left reflect.Type
+	Rite reflect.Type
+}
+
+func (err InvalidTypeAddition) Error() string {
+	return fmt.Sprintf("Invalid addition between type %s and %s.", err.Left, err.Rite)
+}
 
 type ScanError struct {
 	err error
