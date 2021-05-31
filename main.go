@@ -36,7 +36,7 @@ func repl() {
 
 	err = interpreter.Interpret(input)
 	if err != nil {
-		fmt.Printf("Error: %v\n", err)
+		fmt.Printf("%s\n", err)
 	}
 }
 
