@@ -33,9 +33,35 @@ func (intptr *Interpreter) Interpret(input string) error {
 			fmt.Printf("Error %d: %s\n", i, err2)
 		}
 	}
+	err = intptr.interpret(ast)
+	if err != nil {
+		return err
+	}
 
-	fmt.Println(reflect.ValueOf(ast))
-	//fmt.Println(ast.(Binary))
+	return nil
+}
+
+func (intptr *Interpreter) interpret(ast Expression) error {
+	v := reflect.ValueOf(ast)
+	var val Value
+	var err error
+	switch v.Type().Name() {
+	case "Grouping":
+		val, err = ast.(Grouping).evaluate()
+	case "Unary":
+		val, err = ast.(Unary).evaluate()
+	case "Binary":
+		val, err = ast.(Binary).evaluate()
+	case "Literal":
+		val, err = ast.(Literal).evaluate()
+	}
+
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Performing cast to %s\n", v.Type().Name())
+	fmt.Println(reflect.TypeOf(val), ":", val)
 	return nil
 }
 
