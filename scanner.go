@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"unicode"
 )
 
 // Scanner is how a Jlang input string gets scanned and tokenized
@@ -23,6 +24,7 @@ func (scan *Scanner) Scan(input string) ([]Token, error) {
 	scan.start = 0
 	scan.current = 0
 	scan.line = 1
+	scan.Fatal = nil
 
 	for !scan.isAtEnd() {
 		scan.start = scan.current
@@ -38,7 +40,7 @@ func (scan *Scanner) Scan(input string) ([]Token, error) {
 
 func (scan *Scanner) scanToken() {
 	if scan.isNumeric() {
-		for scan.isNumeric() {
+		for scan.isNumeric() || scan.src[scan.current] == '.' {
 			scan.current++
 		}
 		scan.addToken(Number)
@@ -62,6 +64,8 @@ func (scan *Scanner) scanToken() {
 		scan.addToken(RightBrace)
 	case ',':
 		scan.addToken(Comma)
+	case '.':
+		scan.addToken(Dot)
 	case '+':
 		if scan.match('+') {
 			scan.addToken(PlusPlus)
@@ -228,14 +232,11 @@ func (scan *Scanner) isAtEnd() bool {
 
 func (scan *Scanner) isNumeric() bool {
 	val := scan.src[scan.current]
-	if val == 46 || val >= 48 && val <= 57 {
-		return true
-	}
-	return false
+	return unicode.IsDigit(rune(val))
 }
 
 func (scan *Scanner) isIdentifier() bool {
-	val := scan.src[scan.current]
+	val := scan.src[int(scan.current)]
 	if val >= 48 && val <= 56 {
 		return true
 	}
