@@ -5,13 +5,14 @@ import (
 	"reflect"
 )
 
-type InvalidTypeAddition struct {
-	Left reflect.Type
-	Rite reflect.Type
+type InvalidTypeCombination struct {
+	Operation string
+	Left      reflect.Kind
+	Rite      reflect.Kind
 }
 
-func (err InvalidTypeAddition) Error() string {
-	return fmt.Sprintf("Invalid addition between type %s and %s.", err.Left, err.Rite)
+func (err InvalidTypeCombination) Error() string {
+	return fmt.Sprintf("Invalid %s between type %s and %s.", err.Operation, err.Left, err.Rite)
 }
 
 type ScanError struct {
