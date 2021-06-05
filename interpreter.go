@@ -25,14 +25,16 @@ func (intptr *Interpreter) Interpret(input string) error {
 
 	ast, err := intptr.p.Parse(append(tokens, Token{"EOF", EOF, tokens[len(tokens)-1].Line}))
 	if err != nil {
+		intptr.p.error = nil
 		return err
 	}
+
 	if len(intptr.p.Errors) > 1 {
 		for i, err2 := range intptr.p.Errors {
-			i++
 			fmt.Printf("Error %d: %s\n", i, err2)
 		}
 	}
+
 	err = intptr.interpret(ast)
 	if err != nil {
 		return err
