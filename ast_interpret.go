@@ -17,7 +17,6 @@ func (unary Unary) evaluate() (Value, error) {
 		return nil, err
 	}
 	switch unary.Op.Type {
-
 	case Minus:
 		switch reflect.TypeOf(expr).Kind() {
 		case reflect.Int:
@@ -56,69 +55,106 @@ func (binary Binary) evaluate() (Value, error) {
 		return binary.multiply(left, right)
 	case Slash:
 		return binary.divide(left, right)
+	case EqualEqual:
+		return binary.equality(left, right)
 	}
 
 	return nil, InternalError{20, fmt.Sprintf("Unable to determine operator for binary expr: %s", binary)}
 }
 
 func (binary Binary) plus(left Value, right Value) (Value, error) {
-	//fmt.Println(reflect.TypeOf(left), reflect.TypeOf(right))
-	lType := reflect.TypeOf(left)
-	rType := reflect.TypeOf(right)
-	switch lType.Kind() {
+	lKind, rKind := getLeftRightKinds(left, right)
+	switch lKind {
 	case reflect.Int:
-		if lType.Kind() == rType.Kind() {
+		if lKind == rKind {
 			return left.(int) + right.(int), nil
-		} else if rType.Kind() == reflect.Float64 {
+		} else if rKind == reflect.Float64 {
 			return float64(left.(int)) + right.(float64), nil
 		}
 	case reflect.String:
 		return fmt.Sprint(left, right), nil
 	case reflect.Bool:
-		if lType.Kind() == rType.Kind() {
+		if lKind == rKind {
 			if left.(bool) && right.(bool) {
 				return true, nil
 			}
 			return false, nil
 		}
 	case reflect.Float64:
-		if lType.Kind() == rType.Kind() {
+		if lKind == rKind {
 			return left.(float64) + right.(float64), nil
-		} else if rType.Kind() == reflect.Int {
+		} else if rKind == reflect.Int {
 			return left.(float64) + float64(right.(int)), nil
 		}
 	}
 
-	return nil, InvalidTypeAddition{lType, rType}
+	return nil, InvalidTypeCombination{"addition", lKind, rKind}
 }
 
 func (binary Binary) minus(left Value, right Value) (Value, error) {
-	lType := reflect.TypeOf(left)
-	rType := reflect.TypeOf(right)
-	switch lType.Kind() {
+	lKind, rKind := getLeftRightKinds(left, right)
+	switch lKind {
 	case reflect.Int:
-		if lType.Kind() == rType.Kind() {
+		if lKind == rKind {
 			return left.(int) - right.(int), nil
-		} else if rType.Kind() == reflect.Float64 {
+		} else if rKind == reflect.Float64 {
 			return float64(left.(int)) - right.(float64), nil
 		}
 	case reflect.Float64:
-		if lType.Kind() == rType.Kind() {
+		if lKind == rKind {
 			return left.(float64) - right.(float64), nil
-		} else if rType.Kind() == reflect.Int {
+		} else if rKind == reflect.Int {
 			return left.(float64) - float64(right.(int)), nil
 		}
 	}
-	return nil, InvalidTypeAddition{lType, rType}
+	return nil, InvalidTypeCombination{"subtraction", lKind, rKind}
 }
 
 func (binary Binary) multiply(left Value, right Value) (Value, error) {
-	fmt.Println(reflect.TypeOf(binary.Left))
-	return nil, nil
+	lKind, rKind := getLeftRightKinds(left, right)
+	switch lKind {
+	case reflect.Int:
+		if rKind == lKind {
+			return left.(int) * right.(int), nil
+		} else if rKind == reflect.Float64 {
+			return float64(left.(int)) * right.(float64), nil
+		}
+	case reflect.Float64:
+		if rKind == lKind {
+			return left.(float64) * right.(float64), nil
+		} else if rKind == reflect.Int {
+			return left.(float64) * float64(right.(int)), nil
+		}
+	}
+	return nil, InvalidTypeCombination{"multiplication", lKind, rKind}
 }
 
 func (binary Binary) divide(left Value, right Value) (Value, error) {
-	return nil, nil
+	lKind, rKind := getLeftRightKinds(left, right)
+	switch lKind {
+	case reflect.Int:
+		if rKind == reflect.Int {
+			return left.(int) / right.(int), nil
+		} else if rKind == reflect.Float64 {
+			return float64(left.(int)) / right.(float64), nil
+		}
+	case reflect.Float64:
+		if rKind == lKind {
+			return left.(float64) / right.(float64), nil
+		} else if rKind == reflect.Int {
+			return left.(float64) / float64(right.(int)), nil
+		}
+	}
+
+	return nil, InvalidTypeCombination{"division", lKind, rKind}
+}
+
+func (binary Binary) equality(left Value, right Value) (Value, error) {
+	// This is kind of cool :^) let's see how long it can hold...
+	if left == right {
+		return true, nil
+	}
+	return false, nil
 }
 
 func (literal Literal) evaluate() (Value, error) {
@@ -143,10 +179,6 @@ func (literal Literal) evaluate() (Value, error) {
 	return nil, fmt.Errorf("Unable to match literal %s, with a known value", literal.Token.Lexeme)
 }
 
-func isNumericType(val interface{}) bool {
-	kind := reflect.TypeOf(val).Kind()
-	if kind == reflect.Int || kind == reflect.Float64 {
-		return true
-	}
-	return false
+func getLeftRightKinds(left Value, right Value) (reflect.Kind, reflect.Kind) {
+	return reflect.TypeOf(left).Kind(), reflect.TypeOf(right).Kind()
 }

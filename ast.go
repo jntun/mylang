@@ -16,6 +16,7 @@ type Binary struct {
 	Op    Operator
 	Right Expression
 }
+
 type Operator struct{ Token }
 
 // A Literal is a number, string, boolean, or nil
