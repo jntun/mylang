@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+func (program Program) evaluate() (Value, error) {
+	return program.Expr.evaluate()
+}
+
 func (grouping Grouping) evaluate() (Value, error) {
 	return grouping.Expr.evaluate()
 }
@@ -57,6 +61,8 @@ func (binary Binary) evaluate() (Value, error) {
 		return binary.divide(left, right)
 	case EqualEqual:
 		return binary.equality(left, right)
+	case BangEqual:
+		return !(left == right), nil
 	}
 
 	return nil, InternalError{20, fmt.Sprintf("Unable to determine operator for binary expr: %s", binary)}
@@ -150,11 +156,11 @@ func (binary Binary) divide(left Value, right Value) (Value, error) {
 }
 
 func (binary Binary) equality(left Value, right Value) (Value, error) {
-	// This is kind of cool :^) let's see how long it can hold...
-	if left == right {
-		return true, nil
-	}
-	return false, nil
+	return equal(left, right), nil
+}
+
+func (binary Binary) inequality(left Value, right Value) (Value, error) {
+	return !equal(left, right), nil
 }
 
 func (literal Literal) evaluate() (Value, error) {
@@ -181,4 +187,9 @@ func (literal Literal) evaluate() (Value, error) {
 
 func getLeftRightKinds(left Value, right Value) (reflect.Kind, reflect.Kind) {
 	return reflect.TypeOf(left).Kind(), reflect.TypeOf(right).Kind()
+}
+
+func equal(left Value, right Value) bool {
+	// This is kind of cool :^) let's see how long it can hold...
+	return left == right
 }

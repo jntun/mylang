@@ -4,6 +4,11 @@ type Expression interface {
 	evaluate() (Value, error)
 }
 
+// Program is a the highest level node in a Jlang program AST.
+type Program struct {
+	Expr Expression
+}
+
 type Grouping struct {
 	Expr Expression
 }

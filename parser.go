@@ -14,7 +14,7 @@ type Parser struct {
 
 // Parse takes a sequence of scanned Tokens and turns them into a corresponding Expression
 // If the parser is unable to form a valid Expression, it returns an error specifying why it couldn't
-func (p *Parser) Parse(tokens []Token) (Expression, error) {
+func (p *Parser) Parse(tokens []Token) (*Program, error) {
 	p.current = 0
 	p.src = tokens
 	expr := p.parse()
@@ -22,7 +22,7 @@ func (p *Parser) Parse(tokens []Token) (Expression, error) {
 		return nil, p.error
 	}
 
-	return *expr, nil
+	return &Program{*expr}, nil
 }
 
 func (p *Parser) parse() *Expression {
