@@ -12,8 +12,8 @@ type Parser struct {
 	Errors  []error
 }
 
-// Parse takes a sequence of scanned Tokens and turns them into a corresponding Expression
-// If the parser is unable to form a valid Expression, it returns an error specifying why it couldn't
+// Parse takes a sequence of scanned Tokens and turns them into a corresponding Jlang Program type
+// If the parser is unable to form a valid Program, it returns an error specifying why it couldn't
 func (p *Parser) Parse(tokens []Token) (*Program, error) {
 	p.current = 0
 	p.src = tokens
