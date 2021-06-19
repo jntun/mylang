@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 )
 
@@ -12,26 +13,48 @@ type Parser struct {
 	Errors  []error
 }
 
-// Parse takes a sequence of scanned Tokens and turns them into a corresponding Jlang Program type
-// If the parser is unable to form a valid Program, it returns an error specifying why it couldn't
+// Parse takes a sequence of scanned Tokens and turns them into a corresponding Jlang Program statement
+// If the parser is unable to form a valid Program, it returns a ParseError specifying why it couldn't
 func (p *Parser) Parse(tokens []Token) (*Program, error) {
 	p.current = 0
 	p.src = tokens
-	expr := p.parse()
+	statements := make([]Statement, 0)
+	for !p.isAtEnd() {
+		stmt, err := p.statement()
+		if err != nil {
+			return nil, err
+		}
+		statements = append(statements, stmt)
+	}
+
+	return &Program{statements}, nil
+}
+
+func (p *Parser) statement() (Statement, error) {
+	if p.match(Print) {
+		return p.printStatement()
+	}
+
+	return p.expressionStatement()
+}
+
+func (p *Parser) printStatement() (Statement, error) {
+	if err := p.expect(LeftParen); err != nil {
+		return nil, err
+	}
+	expr := p.expression()
+	if err := p.expect(RightParen, Semicolon); err != nil {
+		return nil, err
+	}
+	return PrintStatement{expr}, nil
+}
+
+func (p *Parser) expressionStatement() (Statement, error) {
+	expr := p.expression()
 	if expr == nil {
 		return nil, p.error
 	}
-
-	return &Program{*expr}, nil
-}
-
-func (p *Parser) parse() *Expression {
-	expr := p.expression()
-	// We don't need no try-catch :^)
-	if p.error != nil {
-		return nil
-	}
-	return &expr
+	return ExpressionStatement{expr}, nil
 }
 
 /********** Recursive descent parsing **********/
@@ -131,6 +154,15 @@ func (p *Parser) check(tokenType int) bool {
 	}
 
 	return false
+}
+
+func (p *Parser) expect(types ...int) error {
+	for _, expType := range types {
+		if !p.match(expType) {
+			return ParseError{p.peek(), fmt.Sprintf("Expected %s got %s", MasterTokenMap[expType], p.peek().TypeString())}
+		}
+	}
+	return nil
 }
 
 func (p *Parser) match(types ...int) bool {

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"reflect"
 )
 
 // TODO Logging system for the interpreter
@@ -43,15 +42,8 @@ func (intptr *Interpreter) Interpret(input string) error {
 	return nil
 }
 
-func (intptr *Interpreter) interpret(ast Program) error {
-	val, err := ast.evaluate()
-
-	if err != nil {
-		return err
-	}
-
-	fmt.Println(reflect.TypeOf(val), ":", val)
-	return nil
+func (intptr *Interpreter) interpret(program Program) error {
+	return program.do()
 }
 
 // File accepts a direct source file path, reads it, and then calls Interpret() with the file string
