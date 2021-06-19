@@ -7,8 +7,34 @@ import (
 	"strings"
 )
 
-func (program Program) evaluate() (Value, error) {
-	return program.Expr.evaluate()
+// TODO: file-wide change commented out println's to debug output
+
+func (program Program) do() error {
+	for _, stmt := range program.Statements {
+		err := stmt.do()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (stmt PrintStatement) do() error {
+	val, err := stmt.Expression.evaluate()
+	if err != nil {
+		return err
+	}
+	fmt.Println(val)
+	return nil
+}
+
+func (stmt ExpressionStatement) do() error {
+	val, err := stmt.Expression.evaluate()
+	if err != nil {
+		return err
+	}
+	fmt.Println(val)
+	return nil
 }
 
 func (grouping Grouping) evaluate() (Value, error) {
@@ -39,8 +65,8 @@ func (unary Unary) evaluate() (Value, error) {
 }
 
 func (binary Binary) evaluate() (Value, error) {
-	fmt.Printf("%v %s %v = ", binary.Left, binary.Op.Lexeme, binary.Right)
-	fmt.Println(reflect.TypeOf(binary.Left))
+	//fmt.Printf("%v %s %v = ", binary.Left, binary.Op.Lexeme, binary.Right)
+	//fmt.Println(reflect.TypeOf(binary.Left))
 	left, err := binary.Left.evaluate()
 	if err != nil {
 		return nil, err
@@ -167,10 +193,10 @@ func (literal Literal) evaluate() (Value, error) {
 	switch literal.Type {
 	case Number:
 		if strings.Contains(literal.Lexeme, ".") {
-			fmt.Println("Number is rational:", literal.Lexeme)
+			//fmt.Println("Number is rational:", literal.Lexeme)
 			return strconv.ParseFloat(literal.Lexeme, 64)
 		}
-		fmt.Println("Number is irrational:", literal.Lexeme)
+		//fmt.Println("Number is irrational:", literal.Lexeme)
 		return strconv.Atoi(literal.Lexeme)
 	case String:
 		return literal.Lexeme, nil
@@ -182,7 +208,7 @@ func (literal Literal) evaluate() (Value, error) {
 		return "EOF", nil
 	}
 
-	return nil, fmt.Errorf("Unable to match literal %s, with a known value", literal.Token.Lexeme)
+	return nil, fmt.Errorf("Unable to match literal %s, with a known value.", literal.Token.Lexeme)
 }
 
 func getLeftRightKinds(left Value, right Value) (reflect.Kind, reflect.Kind) {
