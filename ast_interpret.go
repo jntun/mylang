@@ -9,9 +9,9 @@ import (
 
 // TODO: file-wide change commented out println's to debug output
 
-func (program Program) do() error {
+func (program Program) execute() error {
 	for _, stmt := range program.Statements {
-		err := stmt.do()
+		err := stmt.execute()
 		if err != nil {
 			return err
 		}
@@ -19,7 +19,7 @@ func (program Program) do() error {
 	return nil
 }
 
-func (stmt PrintStatement) do() error {
+func (stmt PrintStatement) execute() error {
 	val, err := stmt.Expression.evaluate()
 	if err != nil {
 		return err
@@ -28,7 +28,13 @@ func (stmt PrintStatement) do() error {
 	return nil
 }
 
-func (stmt ExpressionStatement) do() error {
+func (stmt VariableStatement) execute() error {
+	reslv := stmt.resolver
+	reslv(stmt)
+	return nil
+}
+
+func (stmt ExpressionStatement) execute() error {
 	val, err := stmt.Expression.evaluate()
 	if err != nil {
 		return err
@@ -74,6 +80,10 @@ func (binary Binary) evaluate() (Value, error) {
 	right, err := binary.Right.evaluate()
 	if err != nil {
 		return nil, err
+	}
+
+	if left == nil || right == nil {
+		return nil, NilReference{}
 	}
 
 	switch binary.Op.Type {
@@ -204,11 +214,17 @@ func (literal Literal) evaluate() (Value, error) {
 		return true, nil
 	case False:
 		return false, nil
+	case Nil:
+		return nil, nil
 	case EOF:
 		return "EOF", nil
 	}
 
 	return nil, fmt.Errorf("Unable to match literal %s, with a known value.", literal.Token.Lexeme)
+}
+
+func (variable Variable) evaluate() (Value, error) {
+	return variable.resolver(variable)
 }
 
 func getLeftRightKinds(left Value, right Value) (reflect.Kind, reflect.Kind) {

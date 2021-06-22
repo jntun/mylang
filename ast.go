@@ -5,12 +5,20 @@ type Expression interface {
 }
 
 type Statement interface {
-	do() error
+	execute() error
 }
+
+type Declaration interface{}
 
 // Program is a the highest level node in a Jlang program AST.
 type Program struct {
 	Statements []Statement
+}
+
+type VariableStatement struct {
+	Identifier Token
+	Expr       Expression
+	resolver   func(VariableStatement)
 }
 
 type ExpressionStatement struct {
@@ -20,6 +28,11 @@ type ExpressionStatement struct {
 type PrintStatement struct {
 	Expression
 }
+type Binary struct {
+	Left  Expression
+	Op    Operator
+	Right Expression
+}
 
 type Grouping struct {
 	Expr Expression
@@ -28,10 +41,10 @@ type Unary struct {
 	Op   Operator
 	Expr Expression
 }
-type Binary struct {
-	Left  Expression
-	Op    Operator
-	Right Expression
+
+type Variable struct {
+	name     Token
+	resolver func(Variable) (Value, error)
 }
 
 type Operator struct{ Token }

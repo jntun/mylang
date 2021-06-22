@@ -5,6 +5,22 @@ import (
 	"reflect"
 )
 
+type NilReference struct {
+	reference Token
+}
+
+func (err NilReference) Error() string {
+	return fmt.Sprintf("Reference to nil value on line %d at '%s'", err.reference.Line, err.reference.Lexeme)
+}
+
+type UnknownIdentifier struct {
+	variable Variable
+}
+
+func (err UnknownIdentifier) Error() string {
+	return fmt.Sprintf("Unable to reference unknown variable '%s' on line %d.", err.variable.name.Lexeme, err.variable.name.Line)
+}
+
 type InvalidTypeCombination struct {
 	Operation string
 	Left      reflect.Kind

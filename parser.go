@@ -2,22 +2,23 @@ package main
 
 import (
 	"fmt"
-	"log"
 )
 
 // Parser is how a Jlang token sequence gets parsed and turned into Expressions
 type Parser struct {
-	src     []Token
-	current uint
-	error   error
-	Errors  []error
+	src             []Token
+	current         uint
+	error           error
+	Errors          []error
+	variableDecl    func(stmt VariableStatement)
+	variableResolve func(variable Variable) (Value, error)
 }
 
 // Parse takes a sequence of scanned Tokens and turns them into a corresponding Jlang Program statement
 // If the parser is unable to form a valid Program, it returns a ParseError specifying why it couldn't
 func (p *Parser) Parse(tokens []Token) (*Program, error) {
-	p.current = 0
 	p.src = tokens
+	p.flush()
 	statements := make([]Statement, 0)
 	for !p.isAtEnd() {
 		stmt, err := p.statement()
@@ -31,28 +32,79 @@ func (p *Parser) Parse(tokens []Token) (*Program, error) {
 }
 
 func (p *Parser) statement() (Statement, error) {
-	if p.match(Print) {
+	switch p.advance().Type {
+	case Print:
 		return p.printStatement()
+	case Var:
+		return p.variableStatement()
+	case Identifier:
+		return p.assignmentStatement()
+	default:
+		p.reverse()
 	}
 
 	return p.expressionStatement()
 }
 
 func (p *Parser) printStatement() (Statement, error) {
-	if err := p.expect(LeftParen); err != nil {
-		return nil, err
-	}
 	expr := p.expression()
-	if err := p.expect(RightParen, Semicolon); err != nil {
+	if err := p.expect(Semicolon); err != nil {
 		return nil, err
 	}
 	return PrintStatement{expr}, nil
+}
+
+func (p *Parser) variableStatement() (Statement, error) {
+	identifier := p.consume(Identifier, "Expect identifier after var keyword.")
+	if identifier == nil {
+		return nil, ParseError{p.src[p.current], "Invalid identifier."}
+	}
+
+	var expr Expression
+	if p.match(Equal) {
+		expr = p.expression()
+	}
+
+	if ok := p.expect(Semicolon); ok != nil {
+		return nil, ok
+	}
+
+	stmt := VariableStatement{*identifier, expr, p.variableDecl}
+	return stmt, nil
+}
+
+func (p *Parser) assignmentStatement() (Statement, error) {
+	p.reverse()
+	identifier := p.advance()
+
+	val, err := Variable{identifier, p.variableResolve}.evaluate()
+	if err != nil {
+		return nil, err
+	}
+	if val == nil {
+		return nil, NilReference{identifier}
+	}
+
+	if ok := p.expect(Equal); ok != nil {
+		return nil, ok
+	}
+
+	expr := p.expression()
+
+	if ok := p.expect(Semicolon); ok != nil {
+		return nil, ok
+	}
+
+	return VariableStatement{identifier, expr, p.variableDecl}, nil
 }
 
 func (p *Parser) expressionStatement() (Statement, error) {
 	expr := p.expression()
 	if expr == nil {
 		return nil, p.error
+	}
+	if ok := p.expect(Semicolon); ok != nil {
+		return nil, ok
 	}
 	return ExpressionStatement{expr}, nil
 }
@@ -97,6 +149,9 @@ func (p *Parser) factor() Expression {
 	for p.match(Slash, Star) {
 		op := Operator{p.previous()}
 		right := p.unary()
+		if right == nil {
+			return nil
+		}
 		expr = Binary{expr, op, right}
 	}
 	return expr
@@ -125,6 +180,9 @@ func (p *Parser) primary() Expression {
 
 	if p.match(Number, String) {
 		return Literal{p.previous()}
+	}
+	if p.match(Identifier) {
+		return Variable{p.previous(), p.variableResolve}
 	}
 
 	if p.match(LeftParen) {
@@ -199,6 +257,13 @@ func (p *Parser) previous() Token {
 	return p.src[p.current-1]
 }
 
+func (p *Parser) reverse() {
+	if p.current == 0 {
+		return
+	}
+	p.current -= 1
+}
+
 func (p *Parser) isAtEnd() bool {
 	return p.peek().is(EOF)
 }
@@ -235,5 +300,7 @@ func (p *Parser) sync() {
 }
 
 func (p *Parser) flush() {
-	log.Println("Flushing parser...")
+	//log.Println("Flushing parser...")
+	p.current = 0
+	p.Errors = make([]error, 0)
 }
