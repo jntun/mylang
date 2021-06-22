@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"unicode"
 )
 
@@ -19,12 +18,8 @@ type Scanner struct {
 // Scan takes an input string and either returns a Tokenized array or an error specifying why it's
 // an invalid input sequence to be scanned.
 func (scan *Scanner) Scan(input string) ([]Token, error) {
-	scan.tokens = make([]Token, 0)
 	scan.src = input
-	scan.start = 0
-	scan.current = 0
-	scan.line = 1
-	scan.Fatal = nil
+	scan.flush()
 
 	for !scan.isAtEnd() {
 		scan.start = scan.current
@@ -250,6 +245,11 @@ func (scan *Scanner) isIdentifier() bool {
 }
 
 func (scan *Scanner) flush() {
-	log.Println("Flushing scanner...")
-	scan.tokens = scan.tokens[:0]
+	//log.Println("Flushing scanner...")
+	scan.Errors = make([]error, 0)
+	scan.tokens = make([]Token, 0)
+	scan.start = 0
+	scan.current = 0
+	scan.line = 1
+	scan.Fatal = nil
 }
