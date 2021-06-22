@@ -22,6 +22,12 @@ func TestInterpretFor(t *testing.T) {
 	}
 }
 
+func TestInterpretVar(t *testing.T) {
+	if err := genFile("tests/var.jlang"); err != nil {
+		t.Error(err)
+	}
+}
+
 func TestInterpretFunc(t *testing.T) {
 	if err := genFile("tests/function.jlang"); err != nil {
 		t.Error(err)

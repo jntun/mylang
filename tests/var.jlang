@@ -1,0 +1,9 @@
+var test = "I work correctly!";
+var pi = 3.14; 
+
+print test;
+print pi;
+
+var null;
+print "I am null: " + null;
+
