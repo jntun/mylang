@@ -38,10 +38,16 @@ func (p *Parser) statement() (Statement, error) {
 	case Var:
 		return p.variableStatement()
 	case Identifier:
-		return p.assignmentStatement()
-	default:
-		p.reverse()
+		if p.match(Equal) {
+			return p.assignmentStatement()
+		}
+		if p.peek().is(LeftParen) {
+			todo()
+		}
+	case If:
+		return p.IfStatement()
 	}
+	p.reverse()
 
 	return p.expressionStatement()
 }
@@ -74,7 +80,7 @@ func (p *Parser) variableStatement() (Statement, error) {
 }
 
 func (p *Parser) assignmentStatement() (Statement, error) {
-	p.reverse()
+	p.reverse().reverse()
 	identifier := p.advance()
 
 	val, err := Variable{identifier, p.variableResolve}.evaluate()
@@ -88,14 +94,36 @@ func (p *Parser) assignmentStatement() (Statement, error) {
 	if ok := p.expect(Equal); ok != nil {
 		return nil, ok
 	}
-
 	expr := p.expression()
-
 	if ok := p.expect(Semicolon); ok != nil {
 		return nil, ok
 	}
 
 	return VariableStatement{identifier, expr, p.variableDecl}, nil
+}
+
+func (p *Parser) IfStatement() (Statement, error) {
+	expr := p.expression()
+	stmts := make([]Statement, 0)
+
+	p.consume(LeftBrace, "Expected '{' after if statement expression.")
+	for true {
+		val := p.peek()
+		if val.is(RightBrace) {
+			p.consume(RightBrace, "Expected '}' to closing if statement.")
+			return IfStatement{expr, stmts}, nil
+		}
+		stmt, err := p.statement()
+		if err != nil {
+			return nil, err
+		}
+		stmts = append(stmts, stmt)
+		if len(stmts) > 255 {
+			return nil, InternalError{42, "Maximum statements in if block reached."}
+		}
+	}
+
+	return IfStatement{expr, stmts}, nil
 }
 
 func (p *Parser) expressionStatement() (Statement, error) {
@@ -142,6 +170,7 @@ func (p *Parser) term() Expression {
 		right := p.factor()
 		expr = Binary{expr, op, right}
 	}
+
 	return expr
 }
 func (p *Parser) factor() Expression {
@@ -159,6 +188,12 @@ func (p *Parser) factor() Expression {
 
 func (p *Parser) unary() Expression {
 	if p.match(Bang, Minus) {
+		op := Operator{p.previous()}
+		right := p.unary()
+		return Unary{op, right}
+	}
+	// TODO: appendable ++ or -- instead of pre-expression
+	if p.match(PlusPlus, MinusMinus) {
 		op := Operator{p.previous()}
 		right := p.unary()
 		return Unary{op, right}
@@ -257,11 +292,12 @@ func (p *Parser) previous() Token {
 	return p.src[p.current-1]
 }
 
-func (p *Parser) reverse() {
+func (p *Parser) reverse() *Parser {
 	if p.current == 0 {
-		return
+		return p
 	}
 	p.current -= 1
+	return p
 }
 
 func (p *Parser) isAtEnd() bool {

@@ -34,12 +34,30 @@ func (stmt VariableStatement) execute() error {
 	return nil
 }
 
+func (stmt IfStatement) execute() error {
+	for _, currStmt := range stmt.block {
+		var val Value
+		var err error
+		if val, err = stmt.Expr.evaluate(); err != nil {
+			return err
+		}
+		if truthy(val) {
+			err = currStmt.execute()
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
 func (stmt ExpressionStatement) execute() error {
-	val, err := stmt.Expression.evaluate()
+	_, err := stmt.Expression.evaluate()
 	if err != nil {
 		return err
 	}
-	fmt.Println(val)
+	//fmt.Println(val)
 	return nil
 }
 
@@ -65,9 +83,23 @@ func (unary Unary) evaluate() (Value, error) {
 		case reflect.Bool:
 			return !expr.(bool), nil
 		}
+	case PlusPlus:
+		kind := reflect.TypeOf(expr).Kind()
+		if kind == reflect.Float64 {
+			return expr.(float64) + 1, nil
+		} else if kind == reflect.Int {
+			return expr.(int) + 1, nil
+		}
+	case MinusMinus:
+		kind := reflect.TypeOf(expr).Kind()
+		if kind == reflect.Float64 {
+			return expr.(float64) - 1, nil
+		} else if kind == reflect.Int {
+			return expr.(int) - 1, nil
+		}
 	}
 
-	return InternalError{21, fmt.Sprintf("Unable to evaluate unary expression: %s", unary)}, nil
+	return nil, InvalidOperation{unary.Op}
 }
 
 func (binary Binary) evaluate() (Value, error) {
@@ -95,13 +127,47 @@ func (binary Binary) evaluate() (Value, error) {
 		return binary.multiply(left, right)
 	case Slash:
 		return binary.divide(left, right)
+	case Greater:
+		return binary.Greater(left, right), nil
+	case Less:
+		return !binary.Greater(left, right), nil
+	case GreaterEqual:
+		if equal(left, right) {
+			return true, nil
+		}
+		return binary.Greater(left, right), nil
+	case LessEqual:
+		if equal(left, right) {
+			return true, nil
+		}
+		return !binary.Greater(left, right), nil
 	case EqualEqual:
-		return binary.equality(left, right)
+		return binary.Equality(left, right)
 	case BangEqual:
-		return !(left == right), nil
+		return binary.Inequality(left, right)
 	}
 
-	return nil, InternalError{20, fmt.Sprintf("Unable to determine operator for binary expr: %s", binary)}
+	return nil, InvalidOperation{binary.Op}
+}
+
+func (binary Binary) Greater(lhs Value, rhs Value) bool {
+	left, right := getLeftRightKinds(lhs, rhs)
+	switch left {
+	case reflect.Int:
+		if right == reflect.Int {
+			return lhs.(int) > rhs.(int)
+		} else if right == reflect.Float64 {
+			return float64(lhs.(int)) > rhs.(float64)
+		}
+	case reflect.Float64:
+		if right == left {
+			return lhs.(float64) > rhs.(float64)
+		} else if right == reflect.Int {
+			return lhs.(float64) > float64(rhs.(int))
+		}
+	}
+
+	return false
 }
 
 func (binary Binary) plus(left Value, right Value) (Value, error) {
@@ -191,11 +257,11 @@ func (binary Binary) divide(left Value, right Value) (Value, error) {
 	return nil, InvalidTypeCombination{"division", lKind, rKind}
 }
 
-func (binary Binary) equality(left Value, right Value) (Value, error) {
+func (binary Binary) Equality(left Value, right Value) (Value, error) {
 	return equal(left, right), nil
 }
 
-func (binary Binary) inequality(left Value, right Value) (Value, error) {
+func (binary Binary) Inequality(left Value, right Value) (Value, error) {
 	return !equal(left, right), nil
 }
 
@@ -234,4 +300,8 @@ func getLeftRightKinds(left Value, right Value) (reflect.Kind, reflect.Kind) {
 func equal(left Value, right Value) bool {
 	// This is kind of cool :^) let's see how long it can hold...
 	return left == right
+}
+
+func truthy(val Value) bool {
+	return val == true
 }
