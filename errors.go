@@ -5,6 +5,14 @@ import (
 	"reflect"
 )
 
+type InvalidOperation struct {
+	op Operator
+}
+
+func (err InvalidOperation) Error() string {
+	return fmt.Sprintf("Invalid type operation '%s' on line %d", err.op.Lexeme, err.op.Line)
+}
+
 type NilReference struct {
 	reference Token
 }
