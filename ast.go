@@ -21,6 +21,11 @@ type VariableStatement struct {
 	resolver   func(VariableStatement)
 }
 
+type IfStatement struct {
+	Expr  Expression
+	block []Statement
+}
+
 type ExpressionStatement struct {
 	Expression
 }
