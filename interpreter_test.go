@@ -1,6 +1,7 @@
 package main
 
 import (
+	"reflect"
 	"testing"
 )
 
@@ -24,7 +25,9 @@ func TestInterpretFor(t *testing.T) {
 
 func TestInterpretVar(t *testing.T) {
 	if err := genFile("tests/var.jlang"); err != nil {
-		t.Error(err)
+		if reflect.TypeOf(err).Name() != "NilReference" {
+			t.Error(err)
+		}
 	}
 }
 
