@@ -40,7 +40,12 @@ func repl() {
 	}
 }
 
-// TODO actual error system (maybe in interpreter?)
+// TODO: actual error system (maybe in interpreter?)
 func RuntimeError(err error) {
 	fmt.Println(err)
+}
+
+// todo is a drop in code holder for future features
+func todo() {
+	fmt.Println("TODO.")
 }
