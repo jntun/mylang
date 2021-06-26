@@ -38,9 +38,9 @@ func repl() {
 	var append string
 	switch val {
 	case '{':
-		append = multiliner('}')
+		append = multiline('}')
 	case '(':
-		append = multiliner(')')
+		append = multiline(')')
 	}
 
 	input += append
@@ -50,7 +50,7 @@ func repl() {
 	}
 }
 
-func multiliner(delim byte) string {
+func multiline(delim byte) string {
 	fmt.Print(">\t")
 	reader := bufio.NewReader(os.Stdin)
 	test, err := reader.ReadString(delim)
