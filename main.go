@@ -31,12 +31,36 @@ func repl() {
 	reader := bufio.NewReader(os.Stdin)
 	input, err := reader.ReadString('\n')
 	if err != nil {
-		fmt.Println("Invalid input: ", err)
+		InvalidInput(err)
+	}
+	val := input[len(input)-2]
+
+	var append string
+	switch val {
+	case '{':
+		append = multiliner('}')
+	case '(':
+		append = multiliner(')')
 	}
 
+	input += append
 	err = interpreter.Interpret(input)
 	if err != nil {
 		fmt.Printf("%s\n", err)
+	}
+}
+
+func multiliner(delim byte) string {
+	fmt.Print(">\t")
+	reader := bufio.NewReader(os.Stdin)
+	test, err := reader.ReadString(delim)
+	InvalidInput(err)
+	return test
+}
+
+func InvalidInput(err error) {
+	if err != nil {
+		fmt.Println("Invalid input: ", err)
 	}
 }
 
