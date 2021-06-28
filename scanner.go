@@ -47,6 +47,8 @@ func (scan *Scanner) scanToken() {
 		break
 	case '\n':
 		scan.line++
+	case '\t':
+		break
 	case ';':
 		scan.addToken(Semicolon)
 	case '(':
@@ -76,7 +78,11 @@ func (scan *Scanner) scanToken() {
 	case '*':
 		scan.addToken(Star)
 	case '/':
-		scan.addToken(Slash)
+		if scan.match('/') {
+			scan.comment()
+		} else {
+			scan.addToken(Slash)
+		}
 	case '=':
 		if scan.match('=') {
 			scan.addToken(EqualEqual)
@@ -178,6 +184,15 @@ func (scan *Scanner) stringParse() {
 	scan.current--
 	scan.addToken(String)
 	scan.current++
+}
+
+func (scan *Scanner) comment() {
+	for true {
+		val := scan.advance()
+		if val == '\n' {
+			break
+		}
+	}
 }
 
 func (scan *Scanner) addToken(tokenType int) {
