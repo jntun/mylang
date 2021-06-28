@@ -29,8 +29,17 @@ func (stmt PrintStatement) execute() error {
 }
 
 func (stmt VariableStatement) execute() error {
-	reslv := stmt.resolver
-	reslv(stmt)
+	stmt.resolver(stmt)
+	return nil
+}
+
+func (stmt AssignmentStatement) execute() error {
+	_, err := Variable{stmt.VariableStatement.Identifier, stmt.resolver}.evaluate()
+	if err != nil {
+		return err
+	}
+
+	stmt.VariableStatement.resolver(stmt.VariableStatement)
 	return nil
 }
 
@@ -49,6 +58,26 @@ func (stmt IfStatement) execute() error {
 		}
 	}
 
+	return nil
+}
+
+func (stmt WhileStatement) execute() error {
+	val, err := stmt.test.evaluate()
+	if err != nil {
+		return err
+	}
+	for truthy(val) {
+		if err != nil {
+			return err
+		}
+		for _, exec := range stmt.block {
+			err := exec.execute()
+			if err != nil {
+				return err
+			}
+		}
+		val, err = stmt.test.evaluate()
+	}
 	return nil
 }
 
@@ -130,7 +159,7 @@ func (binary Binary) evaluate() (Value, error) {
 	case Greater:
 		return binary.Greater(left, right), nil
 	case Less:
-		return !binary.Greater(left, right), nil
+		return binary.Less(left, right), nil
 	case GreaterEqual:
 		if equal(left, right) {
 			return true, nil
@@ -164,6 +193,26 @@ func (binary Binary) Greater(lhs Value, rhs Value) bool {
 			return lhs.(float64) > rhs.(float64)
 		} else if right == reflect.Int {
 			return lhs.(float64) > float64(rhs.(int))
+		}
+	}
+
+	return false
+}
+
+func (binary Binary) Less(lhs Value, rhs Value) bool {
+	left, right := getLeftRightKinds(lhs, rhs)
+	switch left {
+	case reflect.Int:
+		if right == reflect.Int {
+			return lhs.(int) < rhs.(int)
+		} else if right == reflect.Float64 {
+			return float64(lhs.(int)) < rhs.(float64)
+		}
+	case reflect.Float64:
+		if right == left {
+			return lhs.(float64) < rhs.(float64)
+		} else if right == reflect.Int {
+			return lhs.(float64) < float64(rhs.(int))
 		}
 	}
 

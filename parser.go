@@ -46,6 +46,8 @@ func (p *Parser) statement() (Statement, error) {
 		}
 	case If:
 		return p.IfStatement()
+	case While:
+		return p.WhileStatement()
 	}
 	p.reverse()
 
@@ -83,14 +85,6 @@ func (p *Parser) assignmentStatement() (Statement, error) {
 	p.reverse().reverse()
 	identifier := p.advance()
 
-	val, err := Variable{identifier, p.variableResolve}.evaluate()
-	if err != nil {
-		return nil, err
-	}
-	if val == nil {
-		return nil, NilReference{identifier}
-	}
-
 	if ok := p.expect(Equal); ok != nil {
 		return nil, ok
 	}
@@ -99,18 +93,18 @@ func (p *Parser) assignmentStatement() (Statement, error) {
 		return nil, ok
 	}
 
-	return VariableStatement{identifier, expr, p.variableDecl}, nil
+	return AssignmentStatement{VariableStatement{identifier, expr, p.variableDecl}, p.variableResolve}, nil
 }
 
 func (p *Parser) IfStatement() (Statement, error) {
 	expr := p.expression()
 	stmts := make([]Statement, 0)
 
-	p.consume(LeftBrace, "Expected '{' after if statement expression.")
+	p.consume(LeftBrace, "Expect '{' after if statement expression.")
 	for true {
 		val := p.peek()
 		if val.is(RightBrace) {
-			p.consume(RightBrace, "Expected '}' to closing if statement.")
+			p.consume(RightBrace, "Expect '}' to close if statement.")
 			return IfStatement{expr, stmts}, nil
 		}
 		stmt, err := p.statement()
@@ -124,6 +118,29 @@ func (p *Parser) IfStatement() (Statement, error) {
 	}
 
 	return IfStatement{expr, stmts}, nil
+}
+
+func (p *Parser) WhileStatement() (Statement, error) {
+	expr := p.expression()
+	stmts := make([]Statement, 0)
+	p.consume(LeftBrace, "Expect '{' after while statement expression.")
+	for true {
+		val := p.peek()
+		if val.is(RightBrace) {
+			p.consume(RightBrace, "Expect '}' after while statement.")
+			return WhileStatement{expr, stmts}, nil
+		}
+		stmt, err := p.statement()
+		if err != nil {
+			return nil, err
+		}
+		stmts = append(stmts, stmt)
+		if p.isAtEnd() {
+			return nil, ParseError{p.src[p.current], "Want '}' to close while statement"}
+		}
+	}
+
+	return nil, InternalError{43, "Unable to parse while statement."}
 }
 
 func (p *Parser) expressionStatement() (Statement, error) {
@@ -249,10 +266,10 @@ func (p *Parser) check(tokenType int) bool {
 	return false
 }
 
-func (p *Parser) expect(types ...int) error {
-	for _, expType := range types {
+func (p *Parser) expect(tokens ...int) error {
+	for _, expType := range tokens {
 		if !p.match(expType) {
-			return ParseError{p.peek(), fmt.Sprintf("Expected %s got %s", MasterTokenMap[expType], p.peek().TypeString())}
+			return ParseError{p.peek(), fmt.Sprintf("expected %s got '%s'", MasterTokenMap[expType], p.peek().Lexeme)}
 		}
 	}
 	return nil

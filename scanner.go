@@ -145,6 +145,10 @@ func (scan *Scanner) multi(val byte) {
 		scan.addToken(Return)
 		return
 	}
+	if val == 'w' && scan.matchStr("hile") {
+		scan.addToken(While)
+		return
+	}
 
 	if val == 'n' && scan.matchStr("il") {
 		scan.addToken(Nil)
