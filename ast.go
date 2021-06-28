@@ -21,8 +21,18 @@ type VariableStatement struct {
 	resolver   func(VariableStatement)
 }
 
+type AssignmentStatement struct {
+	VariableStatement
+	resolver func(Variable) (Value, error)
+}
+
 type IfStatement struct {
 	Expr  Expression
+	block []Statement
+}
+
+type WhileStatement struct {
+	test  Expression
 	block []Statement
 }
 

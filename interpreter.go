@@ -58,7 +58,7 @@ func (intptr *Interpreter) VariableMap(stmt VariableStatement) {
 	}
 	val, err := stmt.Expr.evaluate()
 	if err != nil {
-		fmt.Printf("%s\n", InternalError{31, fmt.Sprintf("Invalid variable binding: %s", err)})
+		fmt.Printf("%s\n", InternalError{30, fmt.Sprintf("Invalid variable binding: %s", err)})
 	}
 
 	intptr.global[stmt.Identifier.Lexeme] = &val
