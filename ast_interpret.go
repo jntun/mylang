@@ -39,8 +39,7 @@ func (stmt AssignmentStatement) execute() error {
 		return err
 	}
 
-	stmt.VariableStatement.resolver(stmt.VariableStatement)
-	return nil
+	return stmt.VariableStatement.execute()
 }
 
 func (stmt IfStatement) execute() error {
