@@ -96,7 +96,7 @@ func (p *Parser) assignmentStatement() (Statement, error) {
 	return AssignmentStatement{VariableStatement{identifier, expr, p.variableDecl}, p.variableResolve}, nil
 }
 
-func (p *Parser) IfStatement() (Statement, error) {
+func (p *Parser) ifStatement() (Statement, error) {
 	expr := p.expression()
 	stmts := make([]Statement, 0)
 
