@@ -45,7 +45,7 @@ func (p *Parser) statement() (Statement, error) {
 			todo()
 		}
 	case If:
-		return p.IfStatement()
+		return p.ifStatement()
 	case While:
 		return p.WhileStatement()
 	}
