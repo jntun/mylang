@@ -10,7 +10,7 @@ import (
 type Interpreter struct {
 	s      *Scanner
 	p      *Parser
-	global environment
+	global Environment
 }
 
 // Interpret accepts an input string and attempts to execute the given sequence
@@ -91,7 +91,7 @@ func (intptr *Interpreter) flush() {
 }
 
 func NewInterpreter() *Interpreter {
-	intptr := &Interpreter{global: make(environment)}
+	intptr := &Interpreter{global: NewEnvironment()}
 	intptr.s = &Scanner{}
 	intptr.p = &Parser{
 		variableDecl:    intptr.VariableMap,
