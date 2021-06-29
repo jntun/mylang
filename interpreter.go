@@ -6,8 +6,6 @@ import (
 	"os"
 )
 
-type environment map[string]*Value
-
 // TODO Logging system for the interpreter
 type Interpreter struct {
 	s      *Scanner
@@ -49,11 +47,12 @@ func (intptr *Interpreter) interpret(program Program) error {
 
 // VariableMap is for hooking into the scanner when encountering a VariableStatement.
 // This allows the interpreter to handle state and higher-order operations.
-// It is assumed that when called, the Scanner has already determined it to be a *valid*
+// It is assumed that when called, the Scanner has already determined it to be a lexically _valid_
 // variable statement and now it's up to the interpreter to breathe life into it.
 func (intptr *Interpreter) VariableMap(stmt VariableStatement) {
 	if stmt.Expr == nil {
-		intptr.global[stmt.Identifier.Lexeme] = nil
+		//intptr.global[stmt.Identifier.Lexeme] = nil
+		intptr.global.store(stmt.Identifier.Lexeme, nil)
 		return
 	}
 	val, err := stmt.Expr.evaluate()
@@ -61,20 +60,14 @@ func (intptr *Interpreter) VariableMap(stmt VariableStatement) {
 		fmt.Printf("%s\n", InternalError{30, fmt.Sprintf("Invalid variable binding: %s", err)})
 	}
 
-	intptr.global[stmt.Identifier.Lexeme] = &val
+	//intptr.global[stmt.Identifier.Lexeme] = &val
+	intptr.global.store(stmt.Identifier.Lexeme, &val)
 }
 
 // VariableResolver is how an Identifier gets resolved to a real Value.
 // If it is invalid for any reason, an error is returned instead.
 func (intptr *Interpreter) VariableResolver(variable Variable) (Value, error) {
-	val, found := intptr.global[variable.name.Lexeme]
-	if !found {
-		return nil, UnknownIdentifier{variable}
-	}
-	if val == nil {
-		return nil, nil
-	}
-	return *val, nil
+	return intptr.global.resolve(variable)
 }
 
 // File accepts a direct source file path, reads it, and then calls Interpret() with the file string
