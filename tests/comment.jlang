@@ -1,0 +1,4 @@
+//test input
+var pi = 3.14;
+// comment
+print pi;
