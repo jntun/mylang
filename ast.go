@@ -8,8 +8,6 @@ type Statement interface {
 	execute() error
 }
 
-type Declaration interface{}
-
 // Program is a the highest level node in a Jlang program AST.
 type Program struct {
 	Statements []Statement
