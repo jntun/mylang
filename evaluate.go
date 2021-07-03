@@ -9,12 +9,12 @@ import (
 
 // TODO: file-wide change commented out println's to debug output
 
-func (grouping Grouping) evaluate() (Value, error) {
-	return grouping.Expr.evaluate()
+func (grouping Grouping) evaluate(intptr *Interpreter) (Value, error) {
+	return grouping.Expr.evaluate(intptr)
 }
 
-func (unary Unary) evaluate() (Value, error) {
-	expr, err := unary.Expr.evaluate()
+func (unary Unary) evaluate(intptr *Interpreter) (Value, error) {
+	expr, err := unary.Expr.evaluate(intptr)
 	if err != nil {
 		return nil, err
 	}
@@ -50,14 +50,14 @@ func (unary Unary) evaluate() (Value, error) {
 	return nil, InvalidOperation{unary.Op}
 }
 
-func (binary Binary) evaluate() (Value, error) {
+func (binary Binary) evaluate(intptr *Interpreter) (Value, error) {
 	//fmt.Printf("%v %s %v = ", binary.Left, binary.Op.Lexeme, binary.Right)
 	//fmt.Println(reflect.TypeOf(binary.Left))
-	left, err := binary.Left.evaluate()
+	left, err := binary.Left.evaluate(intptr)
 	if err != nil {
 		return nil, err
 	}
-	right, err := binary.Right.evaluate()
+	right, err := binary.Right.evaluate(intptr)
 	if err != nil {
 		return nil, err
 	}
@@ -233,7 +233,7 @@ func (binary Binary) Inequality(left Value, right Value) (Value, error) {
 	return !equal(left, right), nil
 }
 
-func (literal Literal) evaluate() (Value, error) {
+func (literal Literal) evaluate(intptr *Interpreter) (Value, error) {
 	switch literal.Type {
 	case Number:
 		if strings.Contains(literal.Lexeme, ".") {
@@ -257,7 +257,7 @@ func (literal Literal) evaluate() (Value, error) {
 	return nil, fmt.Errorf("Unable to match literal %s, with a known value.", literal.Token.Lexeme)
 }
 
-func (variable Variable) evaluate() (Value, error) {
+func (variable Variable) evaluate(intptr *Interpreter) (Value, error) {
 	return variable.resolver(variable)
 }
 

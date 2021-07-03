@@ -7,6 +7,7 @@ import (
 )
 
 // TODO Logging system for the interpreter
+
 type Interpreter struct {
 	s   *Scanner
 	p   *Parser
@@ -42,7 +43,7 @@ func (intptr *Interpreter) Interpret(input string) error {
 }
 
 func (intptr *Interpreter) interpret(program Program) error {
-	return program.execute()
+	return program.execute(intptr)
 }
 
 // VariableMap is for hooking into the scanner when encountering a VariableStatement.
@@ -55,7 +56,7 @@ func (intptr *Interpreter) VariableMap(stmt VariableStatement) {
 		intptr.env.store(stmt.Identifier.Lexeme, nil)
 		return
 	}
-	val, err := stmt.Expr.evaluate()
+	val, err := stmt.Expr.evaluate(intptr)
 	if err != nil {
 		fmt.Printf("%s\n", InternalError{30, fmt.Sprintf("Invalid variable binding: %s", err)})
 	}

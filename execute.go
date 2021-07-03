@@ -2,9 +2,9 @@ package main
 
 import "fmt"
 
-func (program Program) execute() error {
+func (program Program) execute(intptr *Interpreter) error {
 	for _, stmt := range program.Statements {
-		err := stmt.execute()
+		err := stmt.execute(intptr)
 		if err != nil {
 			return err
 		}
@@ -12,8 +12,8 @@ func (program Program) execute() error {
 	return nil
 }
 
-func (stmt PrintStatement) execute() error {
-	val, err := stmt.Expression.evaluate()
+func (stmt PrintStatement) execute(intptr *Interpreter) error {
+	val, err := stmt.Expression.evaluate(intptr)
 	if err != nil {
 		return err
 	}
@@ -21,29 +21,29 @@ func (stmt PrintStatement) execute() error {
 	return nil
 }
 
-func (stmt VariableStatement) execute() error {
+func (stmt VariableStatement) execute(intptr *Interpreter) error {
 	stmt.resolver(stmt)
 	return nil
 }
 
-func (stmt AssignmentStatement) execute() error {
-	_, err := Variable{stmt.VariableStatement.Identifier, stmt.resolver}.evaluate()
+func (stmt AssignmentStatement) execute(intptr *Interpreter) error {
+	_, err := Variable{stmt.VariableStatement.Identifier, stmt.resolver}.evaluate(intptr)
 	if err != nil {
 		return err
 	}
 
-	return stmt.VariableStatement.execute()
+	return stmt.VariableStatement.execute(intptr)
 }
 
-func (stmt IfStatement) execute() error {
+func (stmt IfStatement) execute(intptr *Interpreter) error {
 	for _, currStmt := range stmt.block {
 		var val Value
 		var err error
-		if val, err = stmt.Expr.evaluate(); err != nil {
+		if val, err = stmt.Expr.evaluate(intptr); err != nil {
 			return err
 		}
 		if truthy(val) {
-			err = currStmt.execute()
+			err = currStmt.execute(intptr)
 			if err != nil {
 				return err
 			}
@@ -53,8 +53,8 @@ func (stmt IfStatement) execute() error {
 	return nil
 }
 
-func (stmt WhileStatement) execute() error {
-	val, err := stmt.test.evaluate()
+func (stmt WhileStatement) execute(intptr *Interpreter) error {
+	val, err := stmt.test.evaluate(intptr)
 	if err != nil {
 		return err
 	}
@@ -63,18 +63,18 @@ func (stmt WhileStatement) execute() error {
 			return err
 		}
 		for _, exec := range stmt.block {
-			err := exec.execute()
+			err := exec.execute(intptr)
 			if err != nil {
 				return err
 			}
 		}
-		val, err = stmt.test.evaluate()
+		val, err = stmt.test.evaluate(intptr)
 	}
 	return nil
 }
 
-func (stmt ExpressionStatement) execute() error {
-	_, err := stmt.Expression.evaluate()
+func (stmt ExpressionStatement) execute(intptr *Interpreter) error {
+	_, err := stmt.Expression.evaluate(intptr)
 	if err != nil {
 		return err
 	}

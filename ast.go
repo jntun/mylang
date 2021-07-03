@@ -1,11 +1,11 @@
 package main
 
 type Expression interface {
-	evaluate() (Value, error)
+	evaluate(intptr *Interpreter) (Value, error)
 }
 
 type Statement interface {
-	execute() error
+	execute(intptr *Interpreter) error
 }
 
 // Program is a the highest level node in a Jlang program AST.
