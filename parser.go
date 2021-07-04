@@ -77,7 +77,7 @@ func (p *Parser) variableStatement() (Statement, error) {
 		return nil, ok
 	}
 
-	stmt := VariableStatement{*identifier, expr, p.variableDecl}
+	stmt := VariableStatement{*identifier, expr}
 	return stmt, nil
 }
 
@@ -93,7 +93,7 @@ func (p *Parser) assignmentStatement() (Statement, error) {
 		return nil, ok
 	}
 
-	return AssignmentStatement{VariableStatement{identifier, expr, p.variableDecl}, p.variableResolve}, nil
+	return AssignmentStatement{VariableStatement{identifier, expr}}, nil
 }
 
 func (p *Parser) ifStatement() (Statement, error) {
@@ -234,7 +234,7 @@ func (p *Parser) primary() Expression {
 		return Literal{p.previous()}
 	}
 	if p.match(Identifier) {
-		return Variable{p.previous(), p.variableResolve}
+		return Variable{p.previous()}
 	}
 
 	if p.match(LeftParen) {

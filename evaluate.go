@@ -258,7 +258,7 @@ func (literal Literal) evaluate(intptr *Interpreter) (Value, error) {
 }
 
 func (variable Variable) evaluate(intptr *Interpreter) (Value, error) {
-	return variable.resolver(variable)
+	return intptr.VariableResolver(variable)
 }
 
 func getLeftRightKinds(left Value, right Value) (reflect.Kind, reflect.Kind) {

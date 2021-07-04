@@ -22,12 +22,13 @@ func (stmt PrintStatement) execute(intptr *Interpreter) error {
 }
 
 func (stmt VariableStatement) execute(intptr *Interpreter) error {
-	stmt.resolver(stmt)
+	//stmt.resolver(stmt)
+	intptr.VariableMap(stmt)
 	return nil
 }
 
 func (stmt AssignmentStatement) execute(intptr *Interpreter) error {
-	_, err := Variable{stmt.VariableStatement.Identifier, stmt.resolver}.evaluate(intptr)
+	_, err := Variable{stmt.VariableStatement.Identifier}.evaluate(intptr)
 	if err != nil {
 		return err
 	}

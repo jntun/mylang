@@ -16,12 +16,10 @@ type Program struct {
 type VariableStatement struct {
 	Identifier Token
 	Expr       Expression
-	resolver   func(VariableStatement)
 }
 
 type AssignmentStatement struct {
 	VariableStatement
-	resolver func(Variable) (Value, error)
 }
 
 type IfStatement struct {
@@ -56,8 +54,7 @@ type Unary struct {
 }
 
 type Variable struct {
-	name     Token
-	resolver func(Variable) (Value, error)
+	name Token
 }
 
 type Operator struct{ Token }
