@@ -35,12 +35,6 @@ func TestInterpretComment(t *testing.T) {
 	}
 }
 
-func TestInterpretFor(t *testing.T) {
-	if err := genFile("for"); err != nil {
-		t.Error(err)
-	}
-}
-
 func TestInterpretVar(t *testing.T) {
 	if err := genFile("var"); err != nil {
 		if reflect.TypeOf(err).Name() != "NilReference" {
@@ -51,6 +45,12 @@ func TestInterpretVar(t *testing.T) {
 
 func TestInterpretFunc(t *testing.T) {
 	if err := genFile("function"); err != nil {
+		t.Error(err)
+	}
+}
+
+func TestInterpretFor(t *testing.T) {
+	if err := genFile("for"); err != nil {
 		t.Error(err)
 	}
 }
