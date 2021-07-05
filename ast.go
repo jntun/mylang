@@ -32,6 +32,13 @@ type WhileStatement struct {
 	block []Statement
 }
 
+type ForStatement struct {
+	varStmt *VariableStatement
+	test    Expression
+	assign  AssignmentStatement
+	block   []Statement
+}
+
 type ExpressionStatement struct {
 	Expression
 }

@@ -74,6 +74,33 @@ func (stmt WhileStatement) execute(intptr *Interpreter) error {
 	return nil
 }
 
+func (stmt ForStatement) execute(intptr *Interpreter) error {
+	if stmt.varStmt != nil {
+		err := stmt.varStmt.execute(intptr)
+		if err != nil {
+			return err
+		}
+	}
+	val, err := stmt.test.evaluate(intptr)
+	if err != nil {
+		return err
+	}
+	for truthy(val) {
+		err := stmt.assign.execute(intptr)
+		if err != nil {
+			return err
+		}
+		for _, exec := range stmt.block {
+			if err := exec.execute(intptr); err != nil {
+				return err
+			}
+		}
+		val, err = stmt.test.evaluate(intptr)
+	}
+
+	return nil
+}
+
 func (stmt ExpressionStatement) execute(intptr *Interpreter) error {
 	_, err := stmt.Expression.evaluate(intptr)
 	if err != nil {

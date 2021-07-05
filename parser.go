@@ -25,6 +25,7 @@ func (p *Parser) Parse(tokens []Token) (*Program, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		statements = append(statements, stmt)
 	}
 
@@ -39,6 +40,7 @@ func (p *Parser) statement() (Statement, error) {
 		return p.variableStatement()
 	case Identifier:
 		if p.match(Equal) {
+			p.reverse().reverse()
 			return p.assignmentStatement()
 		}
 		if p.peek().is(LeftParen) {
@@ -48,6 +50,8 @@ func (p *Parser) statement() (Statement, error) {
 		return p.ifStatement()
 	case While:
 		return p.WhileStatement()
+	case For:
+		return p.ForStatement()
 	}
 	p.reverse()
 
@@ -82,7 +86,6 @@ func (p *Parser) variableStatement() (Statement, error) {
 }
 
 func (p *Parser) assignmentStatement() (Statement, error) {
-	p.reverse().reverse()
 	identifier := p.advance()
 
 	if ok := p.expect(Equal); ok != nil {
@@ -141,6 +144,59 @@ func (p *Parser) WhileStatement() (Statement, error) {
 	}
 
 	return nil, InternalError{43, "Unable to parse while statement."}
+}
+
+func (p *Parser) ForStatement() (Statement, error) {
+	var varStmt Statement
+	var assign Statement
+	var test Expression
+	var err error
+
+	if p.match(Var) {
+		varStmt, err = p.variableStatement()
+		if err != nil {
+			return nil, err
+		}
+	} else {
+
+	}
+	test = p.expression()
+
+	if test == nil {
+		return nil, p.error
+	}
+
+	p.consume(Semicolon, "Expected ';' after for statement condition.")
+
+	if p.peek().is(Identifier) {
+		assign, err = p.assignmentStatement()
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	p.consume(LeftBrace, "Want '{' after for statement.")
+	stmts := make([]Statement, 0)
+	for true {
+		if p.peek().is(RightBrace) {
+			p.advance()
+			break
+		}
+		stmt, err := p.statement()
+		if err != nil {
+			return nil, err
+		}
+		stmts = append(stmts, stmt)
+		if p.isAtEnd() {
+			return nil, ParseError{token: p.src[p.current], msg: "Want '}' to close for statement."}
+		}
+	}
+
+	var retStmt VariableStatement
+	if varStmt != nil {
+		retStmt = varStmt.(VariableStatement)
+	}
+	return ForStatement{&retStmt, test, assign.(AssignmentStatement), stmts}, nil
 }
 
 func (p *Parser) expressionStatement() (Statement, error) {
@@ -311,6 +367,7 @@ func (p *Parser) previous() Token {
 
 func (p *Parser) reverse() *Parser {
 	if p.current == 0 {
+		p.error = InternalError{13, "Tried to reverse while at 0."}
 		return p
 	}
 	p.current -= 1
