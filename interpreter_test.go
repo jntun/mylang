@@ -54,7 +54,6 @@ func TestInterpretFor(t *testing.T) {
 		t.Error(err)
 	}
 }
-
 func genFile(filename string) error {
 	intptr := NewInterpreter()
 	if err := intptr.File("tests/" + filename + ".jlang"); err != nil {
