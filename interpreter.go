@@ -93,10 +93,7 @@ func (intptr *Interpreter) flush() {
 func NewInterpreter() *Interpreter {
 	intptr := &Interpreter{env: NewEnvironment()}
 	intptr.s = &Scanner{}
-	intptr.p = &Parser{
-		variableDecl:    intptr.VariableMap,
-		variableResolve: intptr.VariableResolver,
-	}
+	intptr.p = &Parser{}
 	return intptr
 }
 

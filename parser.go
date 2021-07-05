@@ -6,12 +6,10 @@ import (
 
 // Parser is how a Jlang token sequence gets parsed and turned into Expressions
 type Parser struct {
-	src             []Token
-	current         uint
-	error           error
-	Errors          []error
-	variableDecl    func(stmt VariableStatement)
-	variableResolve func(variable Variable) (Value, error)
+	src     []Token
+	current uint
+	error   error
+	Errors  []error
 }
 
 // Parse takes a sequence of scanned Tokens and turns them into a corresponding Jlang Program statement
@@ -52,6 +50,9 @@ func (p *Parser) statement() (Statement, error) {
 		return p.WhileStatement()
 	case For:
 		return p.ForStatement()
+	case Function:
+		todo()
+		return nil, nil
 	}
 	p.reverse()
 
