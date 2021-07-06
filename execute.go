@@ -86,7 +86,6 @@ func (stmt ForStatement) execute(intptr *Interpreter) error {
 		return err
 	}
 	for truthy(val) {
-		err := stmt.assign.execute(intptr)
 		if err != nil {
 			return err
 		}
@@ -96,6 +95,9 @@ func (stmt ForStatement) execute(intptr *Interpreter) error {
 			}
 		}
 		val, err = stmt.test.evaluate(intptr)
+		if assignErr := stmt.assign.execute(intptr); assignErr != nil {
+			return assignErr
+		}
 	}
 
 	return nil
