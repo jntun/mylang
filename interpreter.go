@@ -9,9 +9,10 @@ import (
 // TODO Logging system for the interpreter
 
 type Interpreter struct {
-	s   *Scanner
-	p   *Parser
-	env Environment
+	s       *Scanner
+	p       *Parser
+	varEnv  Environment
+	funcEnv Environment
 }
 
 // Interpret accepts an input string and attempts to execute the given sequence
@@ -52,8 +53,8 @@ func (intptr *Interpreter) interpret(program Program) error {
 // variable statement and now it's up to the interpreter to breathe life into it.
 func (intptr *Interpreter) VariableMap(stmt VariableStatement) {
 	if stmt.Expr == nil {
-		//intptr.env[stmt.Identifier.Lexeme] = nil
-		intptr.env.store(stmt.Identifier.Lexeme, nil)
+		//intptr.varEnv[stmt.Identifier.Lexeme] = nil
+		intptr.varEnv.store(stmt.Identifier.Lexeme, nil)
 		return
 	}
 	val, err := stmt.Expr.evaluate(intptr)
@@ -61,13 +62,13 @@ func (intptr *Interpreter) VariableMap(stmt VariableStatement) {
 		fmt.Printf("%s\n", InternalError{30, fmt.Sprintf("Invalid variable binding: %s", err)})
 	}
 
-	intptr.env.store(stmt.Identifier.Lexeme, &val)
+	intptr.varEnv.store(stmt.Identifier.Lexeme, &val)
 }
 
 // VariableResolver is how an Identifier gets resolved to a real Value.
 // If it is invalid for any reason, an error is returned instead.
 func (intptr *Interpreter) VariableResolver(variable Variable) (Value, error) {
-	return intptr.env.resolve(variable)
+	return intptr.varEnv.resolve(variable)
 }
 
 // File accepts a direct source file path, reads it, and then calls Interpret() with the file string
@@ -91,7 +92,7 @@ func (intptr *Interpreter) flush() {
 }
 
 func NewInterpreter() *Interpreter {
-	intptr := &Interpreter{env: NewEnvironment()}
+	intptr := &Interpreter{varEnv: NewEnvironment("var-global"), funcEnv: NewEnvironment("func-global")}
 	intptr.s = &Scanner{}
 	intptr.p = &Parser{}
 	return intptr
