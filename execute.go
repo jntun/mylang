@@ -37,17 +37,24 @@ func (stmt AssignmentStatement) execute(intptr *Interpreter) error {
 }
 
 func (stmt IfStatement) execute(intptr *Interpreter) error {
-	for _, currStmt := range stmt.block {
-		var val Value
-		var err error
-		if val, err = stmt.Expr.evaluate(intptr); err != nil {
+	var exec []Statement
+
+	val, err := stmt.Expr.evaluate(intptr)
+	if err != nil {
+		return err
+	}
+
+	if ok := truthy(val); ok == true {
+		exec = stmt.block
+
+	} else if stmt.elseBlock != nil {
+		exec = *stmt.elseBlock
+	}
+
+	for _, stmt := range exec {
+		err = stmt.execute(intptr)
+		if err != nil {
 			return err
-		}
-		if truthy(val) {
-			err = currStmt.execute(intptr)
-			if err != nil {
-				return err
-			}
 		}
 	}
 

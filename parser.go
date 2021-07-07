@@ -106,10 +106,30 @@ func (p *Parser) ifStatement() (Statement, error) {
 
 	p.consume(LeftBrace, "Expect '{' after if statement expression.")
 	for true {
-		val := p.peek()
-		if val.is(RightBrace) {
+		if p.peek().is(RightBrace) {
 			p.consume(RightBrace, "Expect '}' to close if statement.")
-			return IfStatement{expr, stmts}, nil
+			var elseBlock []Statement
+
+			// Build else block
+			if p.match(Else) {
+				p.consume(LeftBrace, "Expect '{' after 'else' keyword.")
+				elseBlock = make([]Statement, 0)
+				for true {
+					if p.match(RightBrace) {
+						return IfStatement{expr, stmts, &elseBlock}, nil
+					}
+					stmt, err := p.statement()
+					if err != nil {
+						return nil, err
+					}
+					elseBlock = append(elseBlock, stmt)
+					if p.isAtEnd() {
+						return nil, ParseError{p.src[p.current], "Expect '}' to close else statement."}
+					}
+				}
+			}
+
+			return IfStatement{expr, stmts, nil}, nil
 		}
 		stmt, err := p.statement()
 		if err != nil {
@@ -121,7 +141,7 @@ func (p *Parser) ifStatement() (Statement, error) {
 		}
 	}
 
-	return IfStatement{expr, stmts}, nil
+	return IfStatement{expr, stmts, nil}, nil
 }
 
 func (p *Parser) WhileStatement() (Statement, error) {
