@@ -37,8 +37,8 @@ func (env *Environment) push(id string) {
 	env.blocks = append(env.blocks, Block{id, make(varMap)})
 }
 
-func NewEnvironment() Environment {
+func NewEnvironment(id string) Environment {
 	env := Environment{make([]Block, 1)}
-	env.blocks[0] = Block{"global", make(varMap)}
+	env.blocks[0] = Block{id, make(varMap)}
 	return env
 }
