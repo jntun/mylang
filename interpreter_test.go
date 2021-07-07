@@ -29,6 +29,12 @@ func TestInterpretIf(t *testing.T) {
 	}
 }
 
+func TestInterpretIfElse(t *testing.T) {
+	if err := genFile("ifelse"); err != nil {
+		t.Error(err)
+	}
+}
+
 func TestInterpretComment(t *testing.T) {
 	if err := genFile("comment"); err != nil {
 		t.Error(err)
