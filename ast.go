@@ -23,8 +23,9 @@ type AssignmentStatement struct {
 }
 
 type IfStatement struct {
-	Expr  Expression
-	block []Statement
+	Expr      Expression
+	block     []Statement
+	elseBlock *[]Statement
 }
 
 type WhileStatement struct {
