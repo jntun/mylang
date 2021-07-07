@@ -119,6 +119,10 @@ func (scan *Scanner) multi(val byte) {
 		scan.addToken(If)
 		return
 	}
+	if val == 'e' && scan.matchStr("lse") {
+		scan.addToken(Else)
+		return
+	}
 	if val == 't' && scan.matchStr("rue") {
 		scan.addToken(True)
 		return
