@@ -1,0 +1,5 @@
+if 100 % 5 == 0 {
+   print "mod!" ;
+} else {
+    print "not mod";
+}
