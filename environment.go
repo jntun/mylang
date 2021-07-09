@@ -13,7 +13,7 @@ type Block struct {
 func (env Environment) resolve(variable Variable) (Value, error) {
 	for i := len(env.blocks) - 1; i >= 0; i-- {
 		blockEnv := env.blocks[i]
-		val, found := blockEnv.vars[variable.name.Lexeme]
+		val, found := blockEnv.vars[variable.identifier.Lexeme]
 		if !found {
 			continue
 		}
