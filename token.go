@@ -12,6 +12,7 @@ const (
 	Semicolon
 	Slash
 	Star
+	Mod
 
 	Plus
 	PlusPlus

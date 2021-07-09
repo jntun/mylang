@@ -93,6 +93,8 @@ func (binary Binary) evaluate(intptr *Interpreter) (Value, error) {
 		return binary.Equality(left, right)
 	case BangEqual:
 		return binary.Inequality(left, right)
+	case Mod:
+		return binary.Modulo(left, right)
 	}
 
 	return nil, InvalidOperation{binary.Op}
@@ -146,6 +148,8 @@ func (binary Binary) plus(left Value, right Value) (Value, error) {
 			return left.(int) + right.(int), nil
 		} else if rKind == reflect.Float64 {
 			return float64(left.(int)) + right.(float64), nil
+		} else if rKind == reflect.String {
+			return fmt.Sprintf("%v%v", left, right), nil
 		}
 	case reflect.String:
 		return fmt.Sprint(left, right), nil
@@ -223,6 +227,18 @@ func (binary Binary) divide(left Value, right Value) (Value, error) {
 	}
 
 	return nil, InvalidTypeCombination{"division", lKind, rKind}
+}
+
+func (binary Binary) Modulo(left Value, right Value) (Value, error) {
+	lKind, rKind := getLeftRightKinds(left, right)
+	switch lKind {
+	case reflect.Int:
+		if rKind == reflect.Int {
+			return left.(int) % right.(int), nil
+		}
+	}
+
+	return nil, InvalidTypeCombination{"modulo", lKind, rKind}
 }
 
 func (binary Binary) Equality(left Value, right Value) (Value, error) {

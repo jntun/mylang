@@ -109,6 +109,8 @@ func (scan *Scanner) scanToken() {
 		scan.addToken(Less)
 	case '"':
 		scan.stringParse()
+	case '%':
+		scan.addToken(Mod)
 	default:
 		scan.multi(val)
 	}

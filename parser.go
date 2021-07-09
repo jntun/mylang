@@ -274,7 +274,7 @@ func (p *Parser) equality() Expression {
 
 func (p *Parser) comparison() Expression {
 	expr := p.term()
-	for p.match(Greater, GreaterEqual, Less, LessEqual) {
+	for p.match(Greater, GreaterEqual, Less, LessEqual, Mod) {
 		op := Operator{p.previous()}
 		right := p.term()
 		expr = Binary{expr, op, right}
@@ -293,6 +293,7 @@ func (p *Parser) term() Expression {
 
 	return expr
 }
+
 func (p *Parser) factor() Expression {
 	expr := p.unary()
 	for p.match(Slash, Star) {
