@@ -34,7 +34,7 @@ func (p *Parser) Parse(tokens []Token) (*Program, error) {
 func (p *Parser) statement() (Statement, error) {
 	switch p.advance().Type {
 	case Print:
-		return p.printStatement()
+		return p.PrintStatement()
 	case Var:
 		return p.variableStatement()
 	case Identifier:
@@ -43,7 +43,7 @@ func (p *Parser) statement() (Statement, error) {
 			return p.assignmentStatement()
 		}
 	case If:
-		return p.ifStatement()
+		return p.IfStatement()
 	case While:
 		return p.WhileStatement()
 	case For:
@@ -57,7 +57,7 @@ func (p *Parser) statement() (Statement, error) {
 	}
 	p.reverse()
 
-	return p.expressionStatement()
+	return p.ExpressionStatement()
 }
 
 func (p *Parser) FunctionDeclaration() (Statement, error) {
@@ -135,7 +135,7 @@ func (p *Parser) assignmentStatement() (Statement, error) {
 	return AssignmentStatement{VariableStatement{identifier, expr}}, nil
 }
 
-func (p *Parser) ifStatement() (Statement, error) {
+func (p *Parser) IfStatement() (Statement, error) {
 	expr := p.expression()
 	stmts := make([]Statement, 0)
 
@@ -243,7 +243,7 @@ func (p *Parser) ForStatement() (Statement, error) {
 	return ForStatement{&retStmt, test, assign.(AssignmentStatement), stmts}, nil
 }
 
-func (p *Parser) expressionStatement() (Statement, error) {
+func (p *Parser) ExpressionStatement() (Statement, error) {
 	expr := p.expression()
 	if expr == nil {
 		return nil, p.error
@@ -251,7 +251,7 @@ func (p *Parser) expressionStatement() (Statement, error) {
 	return ExpressionStatement{expr}, nil
 }
 
-func (p *Parser) printStatement() (Statement, error) {
+func (p *Parser) PrintStatement() (Statement, error) {
 	expr := p.expression()
 
 	return PrintStatement{expr}, nil
