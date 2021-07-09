@@ -51,7 +51,9 @@ func TestInterpretVar(t *testing.T) {
 
 func TestInterpretFunc(t *testing.T) {
 	if err := genFile("function"); err != nil {
-		t.Error(err)
+		if reflect.TypeOf(err).Name() != "ArgumentMismatch" {
+			t.Error(err)
+		}
 	}
 }
 

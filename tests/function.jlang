@@ -9,3 +9,6 @@ func negate(x) {
 print test();
 print "test2: " + test();
 print negate(5);
+
+// This should fail
+print negate(5, 3);
