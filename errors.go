@@ -3,7 +3,29 @@ package main
 import (
 	"fmt"
 	"reflect"
+	"strings"
 )
+
+type ErrorList struct {
+	errs []error
+}
+
+func (list ErrorList) Error() string {
+	str := strings.Builder{}
+	str.WriteString("Errors: ")
+	for _, err := range list.errs {
+		str.WriteString(err.Error() + "\n")
+	}
+	return str.String()
+}
+
+type BadCall struct {
+	id Token
+}
+
+func (err BadCall) Error() string {
+	return fmt.Sprintf("bad call to '%s'", err.id.Lexeme)
+}
 
 type InvalidOperation struct {
 	op Operator
@@ -26,7 +48,7 @@ type UnknownIdentifier struct {
 }
 
 func (err UnknownIdentifier) Error() string {
-	return fmt.Sprintf("Unable to reference unknown variable '%s' on line %d.", err.variable.name.Lexeme, err.variable.name.Line)
+	return fmt.Sprintf("Unable to reference unknown variable '%s' on line %d.", err.variable.identifier.Lexeme, err.variable.identifier.Line)
 }
 
 type InvalidTypeCombination struct {

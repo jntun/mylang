@@ -61,6 +61,20 @@ func (stmt IfStatement) execute(intptr *Interpreter) error {
 	return nil
 }
 
+func (stmt FunctionDeclarationStatement) execute(intptr *Interpreter) error {
+	intptr.FunctionMap(stmt)
+	return nil
+}
+
+func (stmt ReturnStmt) execute(intptr *Interpreter) error {
+	val, err := stmt.Expression.evaluate(intptr)
+	if err != nil {
+		return err
+	}
+	intptr.FunctionReturn(val)
+	return nil
+}
+
 func (stmt WhileStatement) execute(intptr *Interpreter) error {
 	val, err := stmt.test.evaluate(intptr)
 	if err != nil {

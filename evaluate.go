@@ -261,6 +261,25 @@ func (variable Variable) evaluate(intptr *Interpreter) (Value, error) {
 	return intptr.VariableResolver(variable)
 }
 
+func (fun FunctionCall) evaluate(intptr *Interpreter) (Value, error) {
+	return intptr.FunctionResolve(fun)
+}
+
+func (fun FunctionInvocation) evaluate(intptr *Interpreter) (Value, error) {
+	fmt.Println(fun.stmt.block, "\n\n\n")
+	for _, stmt := range fun.stmt.block {
+		if err := stmt.execute(intptr); err != nil {
+			return nil, err
+		}
+	}
+
+	if intptr.funcRet != nil {
+		return *intptr.funcRet, nil
+	}
+
+	return nil, BadCall{fun.stmt.Identifier}
+}
+
 func getLeftRightKinds(left Value, right Value) (reflect.Kind, reflect.Kind) {
 	return reflect.TypeOf(left).Kind(), reflect.TypeOf(right).Kind()
 }

@@ -18,6 +18,12 @@ type VariableStatement struct {
 	Expr       Expression
 }
 
+type FunctionDeclarationStatement struct {
+	Identifier Token
+	args       *[]Token
+	block      []Statement
+}
+
 type AssignmentStatement struct {
 	VariableStatement
 }
@@ -44,6 +50,11 @@ type ExpressionStatement struct {
 	Expression
 }
 
+type ReturnStmt struct {
+	Expression
+	val Value
+}
+
 type PrintStatement struct {
 	Expression
 }
@@ -62,7 +73,15 @@ type Unary struct {
 }
 
 type Variable struct {
-	name Token
+	identifier Token
+}
+
+type FunctionCall struct {
+	identifier Token
+}
+
+type FunctionInvocation struct {
+	stmt FunctionDeclarationStatement
 }
 
 type Operator struct{ Token }

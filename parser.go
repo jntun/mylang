@@ -23,6 +23,7 @@ func (p *Parser) Parse(tokens []Token) (*Program, error) {
 		if err != nil {
 			return nil, err
 		}
+		p.consume(Semicolon, "Want ';' to close statement.")
 
 		statements = append(statements, stmt)
 	}
@@ -41,9 +42,6 @@ func (p *Parser) statement() (Statement, error) {
 			p.reverse().reverse()
 			return p.assignmentStatement()
 		}
-		if p.peek().is(LeftParen) {
-			todo()
-		}
 	case If:
 		return p.ifStatement()
 	case While:
@@ -51,20 +49,64 @@ func (p *Parser) statement() (Statement, error) {
 	case For:
 		return p.ForStatement()
 	case Function:
-		todo()
-		return nil, nil
+		return p.FunctionDeclaration()
+	case Return:
+		if expr := p.expression(); expr != nil {
+			return ReturnStmt{expr, nil}, nil
+		}
 	}
 	p.reverse()
 
 	return p.expressionStatement()
 }
 
-func (p *Parser) printStatement() (Statement, error) {
-	expr := p.expression()
-	if err := p.expect(Semicolon); err != nil {
+func (p *Parser) FunctionDeclaration() (Statement, error) {
+	identifier := p.consume(Identifier, "Expect identifier after 'func' keyword.")
+	args := make([]Token, 0)
+	var block []Statement
+	var err error
+
+	p.consume(LeftParen, "Expect '(' after function identifier.")
+
+	for p.match(Identifier) {
+		if p.peek().is(RightParen) {
+			break
+		}
+		args = append(args, p.previous())
+		if !p.peek().is(Comma) {
+			break
+		}
+		p.consume(Comma, "Expect ',' to separate parameter names.")
+	}
+
+	p.consume(RightParen, "Want ')' to close function parameter(s).")
+
+	if block, err = p.blockStatement("func"); err != nil {
 		return nil, err
 	}
-	return PrintStatement{expr}, nil
+
+	return FunctionDeclarationStatement{*identifier, &args, block}, nil
+}
+
+func (p *Parser) blockStatement(stmtType string) ([]Statement, error) {
+	p.consume(LeftBrace, fmt.Sprintf("Want '{' after %s statement.", stmtType))
+	block := make([]Statement, 0)
+	for true {
+		if p.peek().is(RightBrace) {
+			break
+		}
+		stmt, err := p.statement()
+		if err != nil {
+			return nil, err
+		}
+		p.consume(Semicolon, "Want ';' in block statement.")
+		block = append(block, stmt)
+		if p.isAtEnd() {
+			return nil, ParseError{token: p.src[p.current], msg: fmt.Sprintf("Couldn't find '}' to close %s statement before end of file.", stmtType)}
+		}
+	}
+	p.consume(RightBrace, fmt.Sprintf("Want '}' to close %s statement.", stmtType))
+	return block, nil
 }
 
 func (p *Parser) variableStatement() (Statement, error) {
@@ -78,10 +120,6 @@ func (p *Parser) variableStatement() (Statement, error) {
 		expr = p.expression()
 	}
 
-	if ok := p.expect(Semicolon); ok != nil {
-		return nil, ok
-	}
-
 	stmt := VariableStatement{*identifier, expr}
 	return stmt, nil
 }
@@ -93,9 +131,6 @@ func (p *Parser) assignmentStatement() (Statement, error) {
 		return nil, ok
 	}
 	expr := p.expression()
-	if ok := p.expect(Semicolon); ok != nil {
-		return nil, ok
-	}
 
 	return AssignmentStatement{VariableStatement{identifier, expr}}, nil
 }
@@ -108,25 +143,15 @@ func (p *Parser) ifStatement() (Statement, error) {
 	for true {
 		if p.peek().is(RightBrace) {
 			p.consume(RightBrace, "Expect '}' to close if statement.")
-			var elseBlock []Statement
 
 			// Build else block
 			if p.match(Else) {
-				p.consume(LeftBrace, "Expect '{' after 'else' keyword.")
-				elseBlock = make([]Statement, 0)
-				for true {
-					if p.match(RightBrace) {
-						return IfStatement{expr, stmts, &elseBlock}, nil
-					}
-					stmt, err := p.statement()
-					if err != nil {
-						return nil, err
-					}
-					elseBlock = append(elseBlock, stmt)
-					if p.isAtEnd() {
-						return nil, ParseError{p.src[p.current], "Expect '}' to close else statement."}
-					}
+				elseBlock, err := p.blockStatement("else")
+				if err != nil {
+					return nil, err
 				}
+				return IfStatement{expr, stmts, &elseBlock}, nil
+
 			}
 
 			return IfStatement{expr, stmts, nil}, nil
@@ -135,6 +160,7 @@ func (p *Parser) ifStatement() (Statement, error) {
 		if err != nil {
 			return nil, err
 		}
+		p.consume(Semicolon, "Want ';' to end statement in if block.")
 		stmts = append(stmts, stmt)
 		if len(stmts) > 255 {
 			return nil, InternalError{42, "Maximum statements in if block reached."}
@@ -146,25 +172,35 @@ func (p *Parser) ifStatement() (Statement, error) {
 
 func (p *Parser) WhileStatement() (Statement, error) {
 	expr := p.expression()
-	stmts := make([]Statement, 0)
-	p.consume(LeftBrace, "Expect '{' after while statement expression.")
-	for true {
-		val := p.peek()
-		if val.is(RightBrace) {
-			p.consume(RightBrace, "Expect '}' after while statement.")
-			return WhileStatement{expr, stmts}, nil
+	/*
+		stmts := make([]Statement, 0)
+		p.consume(LeftBrace, "Expect '{' after while statement expression.")
+		for true {
+			val := p.peek()
+			if val.is(RightBrace) {
+				p.consume(RightBrace, "Expect '}' after while statement.")
+				return WhileStatement{expr, stmts}, nil
+			}
+			stmt, err := p.statement()
+			if err != nil {
+				return nil, err
+			}
+			stmts = append(stmts, stmt)
+			if p.isAtEnd() {
+				return nil, ParseError{p.src[p.current], "Want '}' to close while statement"}
+			}
+
 		}
-		stmt, err := p.statement()
-		if err != nil {
-			return nil, err
-		}
-		stmts = append(stmts, stmt)
-		if p.isAtEnd() {
-			return nil, ParseError{p.src[p.current], "Want '}' to close while statement"}
-		}
+	*/
+	stmts, err := p.blockStatement("while")
+	if err != nil {
+		return nil, err
 	}
 
-	return nil, InternalError{43, "Unable to parse while statement."}
+	return WhileStatement{
+		test:  expr,
+		block: stmts,
+	}, nil
 }
 
 func (p *Parser) ForStatement() (Statement, error) {
@@ -178,11 +214,10 @@ func (p *Parser) ForStatement() (Statement, error) {
 		if err != nil {
 			return nil, err
 		}
-	} else {
-
+		p.consume(Semicolon, "Want ';' to close for var declaration.")
 	}
-	test = p.expression()
 
+	test = p.expression()
 	if test == nil {
 		return nil, p.error
 	}
@@ -196,21 +231,9 @@ func (p *Parser) ForStatement() (Statement, error) {
 		}
 	}
 
-	p.consume(LeftBrace, "Want '{' after for statement.")
-	stmts := make([]Statement, 0)
-	for true {
-		if p.peek().is(RightBrace) {
-			p.advance()
-			break
-		}
-		stmt, err := p.statement()
-		if err != nil {
-			return nil, err
-		}
-		stmts = append(stmts, stmt)
-		if p.isAtEnd() {
-			return nil, ParseError{token: p.src[p.current], msg: "Want '}' to close for statement."}
-		}
+	stmts, err := p.blockStatement("for")
+	if err != nil {
+		return nil, err
 	}
 
 	var retStmt VariableStatement
@@ -225,10 +248,13 @@ func (p *Parser) expressionStatement() (Statement, error) {
 	if expr == nil {
 		return nil, p.error
 	}
-	if ok := p.expect(Semicolon); ok != nil {
-		return nil, ok
-	}
 	return ExpressionStatement{expr}, nil
+}
+
+func (p *Parser) printStatement() (Statement, error) {
+	expr := p.expression()
+
+	return PrintStatement{expr}, nil
 }
 
 /********** Recursive descent parsing **********/
@@ -311,6 +337,19 @@ func (p *Parser) primary() Expression {
 		return Literal{p.previous()}
 	}
 	if p.match(Identifier) {
+		if p.match(LeftParen) {
+			identifier := p.reverse().previous()
+			p.advance()
+			if val := p.advance(); val.is(Identifier) {
+				// TODO: Argument parsing
+				fmt.Print("... args detected")
+				for p.match(Identifier) {
+					p.consume(Comma, "Want ',' after argument.")
+				}
+			}
+			p.consume(RightParen, "Want ')' to close call.")
+			return FunctionCall{identifier}
+		}
 		return Variable{p.previous()}
 	}
 
@@ -404,30 +443,6 @@ func (p *Parser) hadError(token Token, msg string) ParseError {
 	p.Errors = append(p.Errors, err)
 	//RuntimeError(err)
 	return err
-}
-
-func (p *Parser) sync() {
-	p.advance()
-
-	for !p.isAtEnd() {
-		if p.previous().is(Semicolon) {
-			return
-		}
-
-		switch p.peek().Type {
-		case Class:
-		case Function:
-		case Var:
-		case For:
-		case If:
-		case While:
-		case Print:
-		case Return:
-			return
-		}
-
-		p.advance()
-	}
 }
 
 func (p *Parser) flush() {

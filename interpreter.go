@@ -12,7 +12,8 @@ type Interpreter struct {
 	s       *Scanner
 	p       *Parser
 	varEnv  Environment
-	funcEnv Environment
+	funcRet *Value
+	funcEnv map[string]FunctionInvocation
 }
 
 // Interpret accepts an input string and attempts to execute the given sequence
@@ -24,14 +25,17 @@ func (intptr *Interpreter) Interpret(input string) error {
 		return ScanError{err}
 	}
 
+	//printTokens(tokens)
+
 	ast, err := intptr.p.Parse(append(tokens, Token{"EOF", EOF, tokens[len(tokens)-1].Line}))
 	if err != nil {
 		return err
 	}
 
 	if len(intptr.p.Errors) > 1 {
-		for i, err2 := range intptr.p.Errors {
-			fmt.Printf("Error %d: %s\n", i, err2)
+		errList := make([]error, 0)
+		for _, err2 := range intptr.p.Errors {
+			errList = append(errList, err2)
 		}
 	}
 
@@ -71,6 +75,27 @@ func (intptr *Interpreter) VariableResolver(variable Variable) (Value, error) {
 	return intptr.varEnv.resolve(variable)
 }
 
+// FunctionMap assumes the parser has *correctly* parsed a
+// FunctionDeclarationStatement and is now ready to be breathed life into from the interpreter.
+func (intptr *Interpreter) FunctionMap(stmt FunctionDeclarationStatement) {
+	intptr.funcEnv[stmt.Identifier.Lexeme] = FunctionInvocation{stmt}
+}
+
+func (intptr *Interpreter) FunctionResolve(caller FunctionCall) (Value, error) {
+	if fun, found := intptr.funcEnv[caller.identifier.Lexeme]; found == true {
+		val, err := fun.evaluate(intptr)
+		if err != nil {
+			return nil, err
+		}
+		return val, nil
+	}
+	return nil, BadCall{caller.identifier}
+}
+
+func (intptr *Interpreter) FunctionReturn(val Value) {
+	intptr.funcRet = &val
+}
+
 // File accepts a direct source file path, reads it, and then calls Interpret() with the file string
 func (intptr *Interpreter) File(filepath string) error {
 	//log.Printf("Scanning file %s...\n", filepath)
@@ -92,7 +117,7 @@ func (intptr *Interpreter) flush() {
 }
 
 func NewInterpreter() *Interpreter {
-	intptr := &Interpreter{varEnv: NewEnvironment("var-global"), funcEnv: NewEnvironment("func-global")}
+	intptr := &Interpreter{varEnv: NewEnvironment("var-global"), funcEnv: make(map[string]FunctionInvocation)}
 	intptr.s = &Scanner{}
 	intptr.p = &Parser{}
 	return intptr
