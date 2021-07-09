@@ -6,17 +6,14 @@ import (
 	"strings"
 )
 
-type ErrorList struct {
-	errs []error
+type ArgumentMismatch struct {
+	identifier Token
+	expected   uint
+	got        uint
 }
 
-func (list ErrorList) Error() string {
-	str := strings.Builder{}
-	str.WriteString("Errors: ")
-	for _, err := range list.errs {
-		str.WriteString(err.Error() + "\n")
-	}
-	return str.String()
+func (err ArgumentMismatch) Error() string {
+	return fmt.Sprintf("Argument length mismatch for '%s' call:\n\tWant %d, got %d.", err.identifier.Lexeme, err.expected, err.got)
 }
 
 type BadCall struct {
@@ -120,6 +117,19 @@ type FileReadFailure struct {
 
 func (err FileReadFailure) Error() string {
 	return fmt.Sprintf("failure to read file %s: %s", err.Filepath, err.Err)
+}
+
+type ErrorList struct {
+	errs []error
+}
+
+func (list ErrorList) Error() string {
+	str := strings.Builder{}
+	str.WriteString("Errors: ")
+	for _, err := range list.errs {
+		str.WriteString(err.Error() + "\n")
+	}
+	return str.String()
 }
 
 // InternalError is a generic error type for any subsystem to return on a failure of some
