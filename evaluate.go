@@ -284,6 +284,9 @@ func (fun FunctionCall) evaluate(intptr *Interpreter) (Value, error) {
 func (fun FunctionInvocation) evaluate(intptr *Interpreter) (Value, error) {
 	// If we have args, map them to the interpreter environment
 	if fun.argExprs != nil {
+		if len(*fun.argExprs) != len(*fun.stmt.args) {
+			return nil, ArgumentMismatch{fun.stmt.Identifier, uint(len(*fun.stmt.args)), uint(len(*fun.argExprs))}
+		}
 		for i, expr := range *fun.argExprs {
 			ids := *fun.stmt.args
 			//fmt.Printf("Assigning %s - %v\n", ids[i], expr)
