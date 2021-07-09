@@ -282,7 +282,18 @@ func (fun FunctionCall) evaluate(intptr *Interpreter) (Value, error) {
 }
 
 func (fun FunctionInvocation) evaluate(intptr *Interpreter) (Value, error) {
-	fmt.Println(fun.stmt.block, "\n\n\n")
+	// If we have args, map them to the interpreter environment
+	if fun.argExprs != nil {
+		for i, expr := range *fun.argExprs {
+			ids := *fun.stmt.args
+			//fmt.Printf("Assigning %s - %v\n", ids[i], expr)
+			intptr.VariableMap(VariableStatement{
+				Identifier: ids[i],
+				Expr:       expr,
+			})
+		}
+	}
+
 	for _, stmt := range fun.stmt.block {
 		if err := stmt.execute(intptr); err != nil {
 			return nil, err
@@ -290,10 +301,24 @@ func (fun FunctionInvocation) evaluate(intptr *Interpreter) (Value, error) {
 	}
 
 	if intptr.funcRet != nil {
-		return *intptr.funcRet, nil
+		val := *intptr.funcRet
+		intptr.funcRet = nil
+		return val, nil
 	}
 
-	return nil, BadCall{fun.stmt.Identifier}
+	return nil, nil
+}
+
+func (fun *FunctionInvocation) FillArgs(intptr *Interpreter, argExprs *[]Expression) error {
+	if argExprs == nil {
+		return nil
+	}
+	if len(*argExprs) == 0 {
+		return nil
+	}
+
+	fun.argExprs = argExprs
+	return nil
 }
 
 func getLeftRightKinds(left Value, right Value) (reflect.Kind, reflect.Kind) {

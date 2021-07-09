@@ -78,10 +78,12 @@ type Variable struct {
 
 type FunctionCall struct {
 	identifier Token
+	args       *[]Expression
 }
 
 type FunctionInvocation struct {
-	stmt FunctionDeclarationStatement
+	stmt     FunctionDeclarationStatement
+	argExprs *[]Expression
 }
 
 type Operator struct{ Token }

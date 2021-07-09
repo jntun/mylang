@@ -69,10 +69,10 @@ func (p *Parser) FunctionDeclaration() (Statement, error) {
 	p.consume(LeftParen, "Expect '(' after function identifier.")
 
 	for p.match(Identifier) {
+		args = append(args, p.previous())
 		if p.peek().is(RightParen) {
 			break
 		}
-		args = append(args, p.previous())
 		if !p.peek().is(Comma) {
 			break
 		}
@@ -83,6 +83,10 @@ func (p *Parser) FunctionDeclaration() (Statement, error) {
 
 	if block, err = p.blockStatement("func"); err != nil {
 		return nil, err
+	}
+
+	if len(args) == 0 {
+		return FunctionDeclarationStatement{*identifier, nil, block}, nil
 	}
 
 	return FunctionDeclarationStatement{*identifier, &args, block}, nil
@@ -338,18 +342,28 @@ func (p *Parser) primary() Expression {
 		return Literal{p.previous()}
 	}
 	if p.match(Identifier) {
-		if p.match(LeftParen) {
-			identifier := p.reverse().previous()
+		if p.peek().is(LeftParen) {
+			identifier := p.previous()
+			var args []Expression
 			p.advance()
-			if val := p.advance(); val.is(Identifier) {
-				// TODO: Argument parsing
-				fmt.Print("... args detected")
-				for p.match(Identifier) {
+
+			args = nil
+			expr := p.primary()
+			args = make([]Expression, 0)
+			for expr != nil {
+
+				args = append(args, expr)
+				if !p.peek().is(RightParen) {
 					p.consume(Comma, "Want ',' after argument.")
+				} else {
+					break
 				}
+
+				expr = p.primary()
 			}
 			p.consume(RightParen, "Want ')' to close call.")
-			return FunctionCall{identifier}
+			funcCall := FunctionCall{identifier, &args}
+			return funcCall
 		}
 		return Variable{p.previous()}
 	}

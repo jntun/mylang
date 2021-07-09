@@ -2,10 +2,10 @@ func test() {
     return "test";
 }
 
-//func negate(x) {
- //   return -x;
-//}
+func negate(x) {
+    return -x;
+}
 
 print test();
-print test();
-//print negate(5);
+print "test2: " + test();
+print negate(5);

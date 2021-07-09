@@ -25,8 +25,6 @@ func (intptr *Interpreter) Interpret(input string) error {
 		return ScanError{err}
 	}
 
-	//printTokens(tokens)
-
 	ast, err := intptr.p.Parse(append(tokens, Token{"EOF", EOF, tokens[len(tokens)-1].Line}))
 	if err != nil {
 		return err
@@ -78,11 +76,15 @@ func (intptr *Interpreter) VariableResolver(variable Variable) (Value, error) {
 // FunctionMap assumes the parser has *correctly* parsed a
 // FunctionDeclarationStatement and is now ready to be breathed life into from the interpreter.
 func (intptr *Interpreter) FunctionMap(stmt FunctionDeclarationStatement) {
-	intptr.funcEnv[stmt.Identifier.Lexeme] = FunctionInvocation{stmt}
+	intptr.funcEnv[stmt.Identifier.Lexeme] = FunctionInvocation{stmt, nil}
 }
 
 func (intptr *Interpreter) FunctionResolve(caller FunctionCall) (Value, error) {
 	if fun, found := intptr.funcEnv[caller.identifier.Lexeme]; found == true {
+		if err := fun.FillArgs(intptr, caller.args); err != nil {
+			return nil, err
+		}
+
 		val, err := fun.evaluate(intptr)
 		if err != nil {
 			return nil, err
@@ -94,6 +96,14 @@ func (intptr *Interpreter) FunctionResolve(caller FunctionCall) (Value, error) {
 
 func (intptr *Interpreter) FunctionReturn(val Value) {
 	intptr.funcRet = &val
+}
+
+func (intptr *Interpreter) popValue(expr Expression) (Value, error) {
+	val, err := expr.evaluate(intptr)
+	if err != nil {
+		return nil, err
+	}
+	return val, nil
 }
 
 // File accepts a direct source file path, reads it, and then calls Interpret() with the file string
