@@ -9,11 +9,12 @@ import (
 // TODO Logging system for the interpreter
 
 type Interpreter struct {
-	s       *Scanner
-	p       *Parser
-	varEnv  Environment
-	funcRet *Value
-	funcEnv map[string]FunctionInvocation
+	s           *Scanner
+	p           *Parser
+	varEnv      Environment
+	shouldBreak bool
+	funcRet     *Value
+	funcEnv     map[string]FunctionInvocation
 }
 
 // Interpret accepts an input string and attempts to execute the given sequence

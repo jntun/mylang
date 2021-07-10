@@ -63,6 +63,20 @@ func (binary Binary) evaluate(intptr *Interpreter) (Value, error) {
 	}
 
 	if left == nil || right == nil {
+		switch binary.Op.Type {
+		case EqualEqual:
+			if left == nil {
+				return right == nil, nil
+			}
+			return false, nil
+		case BangEqual:
+			if left == nil {
+				return !(right == nil), nil
+			} else if right == nil {
+				return true, nil
+			}
+			return false, nil
+		}
 		return nil, NilReference{}
 	}
 
@@ -282,6 +296,7 @@ func (fun FunctionCall) evaluate(intptr *Interpreter) (Value, error) {
 }
 
 func (fun FunctionInvocation) evaluate(intptr *Interpreter) (Value, error) {
+
 	// If we have args, map them to the interpreter environment
 	if fun.argExprs != nil {
 		if len(*fun.argExprs) != len(*fun.stmt.args) {
@@ -300,6 +315,9 @@ func (fun FunctionInvocation) evaluate(intptr *Interpreter) (Value, error) {
 	for _, stmt := range fun.stmt.block {
 		if err := stmt.execute(intptr); err != nil {
 			return nil, err
+		}
+		if intptr.funcRet != nil {
+			break
 		}
 	}
 

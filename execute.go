@@ -56,6 +56,10 @@ func (stmt IfStatement) execute(intptr *Interpreter) error {
 		if err != nil {
 			return err
 		}
+
+		if intptr.funcRet != nil {
+			break
+		}
 	}
 
 	return nil
@@ -91,6 +95,10 @@ func (stmt WhileStatement) execute(intptr *Interpreter) error {
 			}
 		}
 		val, err = stmt.test.evaluate(intptr)
+
+		if intptr.funcRet != nil {
+			break
+		}
 	}
 	return nil
 }
@@ -118,6 +126,10 @@ func (stmt ForStatement) execute(intptr *Interpreter) error {
 		val, err = stmt.test.evaluate(intptr)
 		if assignErr := stmt.assign.execute(intptr); assignErr != nil {
 			return assignErr
+		}
+
+		if intptr.funcRet != nil {
+			break
 		}
 	}
 
