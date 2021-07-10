@@ -26,6 +26,8 @@ func popInterpreter() {
 	}
 }
 
+var indent = 0
+
 func repl() {
 	fmt.Print("> ")
 	reader := bufio.NewReader(os.Stdin)
@@ -33,29 +35,45 @@ func repl() {
 	if err != nil {
 		InvalidInput(err)
 	}
-	val := input[len(input)-2]
+	lastChar := input[len(input)-2]
 
-	var append string
-	switch val {
+	var appnd string
+	switch lastChar {
 	case '{':
-		append = multiline('}')
+		indent++
+		appnd = multiline('}')
 	case '(':
-		append = multiline(')')
+		indent++
+		appnd = multiline(')')
+	case '[':
+		indent++
+		appnd = multiline(']')
 	}
+	input += appnd
 
-	input += append
 	err = interpreter.Interpret(input)
 	if err != nil {
 		fmt.Printf("%s\n", err)
 	}
 }
 
+func space(i int) string {
+	str := ""
+	for x := 0; x < i; x++ {
+		str += "   "
+	}
+	return str
+}
+
 func multiline(delim byte) string {
-	fmt.Print(">\t")
+	fmt.Printf(">%s", space(indent))
+
 	reader := bufio.NewReader(os.Stdin)
-	test, err := reader.ReadString(delim)
+	appnd, err := reader.ReadString(delim)
 	InvalidInput(err)
-	return test
+
+	indent--
+	return appnd
 }
 
 func InvalidInput(err error) {
