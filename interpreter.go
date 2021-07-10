@@ -98,14 +98,6 @@ func (intptr *Interpreter) FunctionReturn(val Value) {
 	intptr.funcRet = &val
 }
 
-func (intptr *Interpreter) popValue(expr Expression) (Value, error) {
-	val, err := expr.evaluate(intptr)
-	if err != nil {
-		return nil, err
-	}
-	return val, nil
-}
-
 // File accepts a direct source file path, reads it, and then calls Interpret() with the file string
 func (intptr *Interpreter) File(filepath string) error {
 	//log.Printf("Scanning file %s...\n", filepath)
