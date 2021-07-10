@@ -6,7 +6,7 @@ func (stmt FunctionDeclarationStatement) String() string {
 	return fmt.Sprintf("func: %s | args: %v | block: %v |\n", stmt.Identifier.Lexeme, *stmt.args, stmt.block)
 }
 
-func (stmt ReturnStmt) String() string {
+func (stmt ReturnStatement) String() string {
 	return fmt.Sprintf("return %v", stmt.Expression)
 }
 

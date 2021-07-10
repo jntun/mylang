@@ -52,7 +52,7 @@ func (p *Parser) statement() (Statement, error) {
 		return p.FunctionDeclaration()
 	case Return:
 		if expr := p.expression(); expr != nil {
-			return ReturnStmt{expr, nil}, nil
+			return ReturnStatement{expr, nil}, nil
 		}
 	}
 	p.reverse()

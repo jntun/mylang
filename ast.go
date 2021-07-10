@@ -50,7 +50,7 @@ type ExpressionStatement struct {
 	Expression
 }
 
-type ReturnStmt struct {
+type ReturnStatement struct {
 	Expression
 	val Value
 }

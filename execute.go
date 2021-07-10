@@ -66,7 +66,7 @@ func (stmt FunctionDeclarationStatement) execute(intptr *Interpreter) error {
 	return nil
 }
 
-func (stmt ReturnStmt) execute(intptr *Interpreter) error {
+func (stmt ReturnStatement) execute(intptr *Interpreter) error {
 	val, err := stmt.Expression.evaluate(intptr)
 	if err != nil {
 		return err
