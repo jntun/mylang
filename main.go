@@ -3,7 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"jntun.com/jlang/lang"
+	"github.com/jntun/mylang/lang"
 	"os"
 )
 
