@@ -2,7 +2,9 @@ package lang
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
+	"log"
 	"os"
 )
 
@@ -15,6 +17,7 @@ type Interpreter struct {
 	shouldBreak bool
 	funcRet     *Value
 	funcEnv     map[string]FunctionInvocation
+	log         *log.Logger
 }
 
 // Interpret accepts an input string and attempts to execute the given sequence
@@ -114,13 +117,18 @@ func (intptr *Interpreter) File(filepath string) error {
 	return nil
 }
 
+func (intptr *Interpreter) HookLogOut(out io.Writer) error {
+	intptr.log = log.New(out, "", 0)
+	return nil
+}
+
 func (intptr *Interpreter) flush() {
 	intptr.s.flush()
 	intptr.p.flush()
 }
 
 func NewInterpreter() *Interpreter {
-	intptr := &Interpreter{varEnv: NewEnvironment("var-global"), funcEnv: make(map[string]FunctionInvocation)}
+	intptr := &Interpreter{varEnv: NewEnvironment("var-global"), funcEnv: make(map[string]FunctionInvocation), log: log.New(os.Stdout, "", 0)}
 	intptr.s = &Scanner{}
 	intptr.p = &Parser{}
 	return intptr

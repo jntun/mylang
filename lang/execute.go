@@ -1,9 +1,5 @@
 package lang
 
-import (
-	"fmt"
-)
-
 func (program Program) execute(intptr *Interpreter) error {
 	for _, stmt := range program.Statements {
 		err := stmt.execute(intptr)
@@ -19,7 +15,7 @@ func (stmt PrintStatement) execute(intptr *Interpreter) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(val)
+	intptr.log.Println(val)
 	return nil
 }
 
