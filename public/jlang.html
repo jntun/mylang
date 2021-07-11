@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <title>Jlang Playground</title>
+    <script type="text/javascript">
+        let src;
+        let out;
+        let req = new XMLHttpRequest();
+
+        function onload() {
+            src = document.getElementById('src');
+            out = document.getElementById('output');
+
+            console.log("Load done.", src);
+        }
+
+        function submit() {
+            req.open("POST", "http://jntun.com/jlang");
+            req.addEventListener('load', done);
+            req.send(src.value);
+        }
+
+        function done(e) {
+            out.innerText = "out: "+req.response;
+
+            req = new XMLHttpRequest();
+        }
+    </script>
+    <style>
+        #src {
+            width: 40%;
+            min-height: 40%;
+        }
+    </style>
+</head>
+<body onload="onload();">
+<div id="root">
+    <h3>Jlang</h3>
+    <label for="src">src code:</label>
+    <input id="src" value='print "hello" + " world" + " from jntun.com";' type="text" autofocus required/>
+    <button name="run-code" onclick="submit();">Run</button>
+    <br/>
+    <p id="output"></p>
+</div>
+
+</body>
+</html>

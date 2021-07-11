@@ -2,11 +2,10 @@ package main
 
 import (
 	"fmt"
+	jlang "github.com/jntun/mylang/lang"
 	"io/ioutil"
 	"log"
 	"net/http"
-
-	jlang "github.com/jntun/mylang/lang"
 )
 
 func httpServer() {
@@ -40,6 +39,28 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 
 func jlangHandler(w http.ResponseWriter, r *http.Request) {
 	// TODO: the rest of the owl (build jlang interpreter hooking)
+	switch r.Method {
+	case "POST":
+		runScript(w, r)
+	case "PUT":
+		runScript(w, r)
+	case "GET":
+		htmlFile, err := readHTML("jlang")
+		if err != nil {
+			log.Printf("Unable to open html file 'jlang.html': %s.\n", err)
+			return
+		}
+
+		_, err = w.Write(htmlFile)
+
+		if err != nil {
+			log.Printf("Failed to write GET response: %s.\n", err)
+			return
+		}
+	}
+}
+
+func runScript(w http.ResponseWriter, r *http.Request) {
 	body := r.Body
 	data, err := ioutil.ReadAll(body)
 	if err != nil {
@@ -60,4 +81,12 @@ func jlangHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(fmt.Sprintf("Error: %s\n", err)))
 		return
 	}
+}
+
+func readHTML(filename string) ([]byte, error) {
+	data, err := ioutil.ReadFile("./public/" + filename + ".html")
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
 }
