@@ -1,6 +1,8 @@
-package main
+package lang
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func (program Program) execute(intptr *Interpreter) error {
 	for _, stmt := range program.Statements {

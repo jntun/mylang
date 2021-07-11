@@ -3,10 +3,11 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"jntun.com/jlang/lang"
 	"os"
 )
 
-var interpreter = NewInterpreter()
+var interpreter = lang.NewInterpreter()
 
 func main() {
 	args := os.Args[1:]
@@ -87,7 +88,7 @@ func RuntimeError(err error) {
 	fmt.Println(err)
 }
 
-func printTokens(tokens []Token) {
+func printTokens(tokens []lang.Token) {
 	for _, token := range tokens {
 		fmt.Println(token.FmtString())
 	}

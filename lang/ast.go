@@ -1,4 +1,4 @@
-package main
+package lang
 
 type Expression interface {
 	evaluate(intptr *Interpreter) (Value, error)

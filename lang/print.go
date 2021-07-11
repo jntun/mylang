@@ -1,6 +1,8 @@
-package main
+package lang
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func (stmt FunctionDeclarationStatement) String() string {
 	return fmt.Sprintf("func: %s | args: %v | block: %v |\n", stmt.Identifier.Lexeme, *stmt.args, stmt.block)

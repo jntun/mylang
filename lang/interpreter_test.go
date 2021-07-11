@@ -1,4 +1,4 @@
-package main
+package lang
 
 import (
 	"reflect"
@@ -64,7 +64,7 @@ func TestInterpretFor(t *testing.T) {
 }
 func genFile(filename string) error {
 	intptr := NewInterpreter()
-	if err := intptr.File("tests/" + filename + ".jlang"); err != nil {
+	if err := intptr.File("../tests/" + filename + ".jlang"); err != nil {
 		return err
 	}
 	return nil

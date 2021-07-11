@@ -1,11 +1,11 @@
-package main
+package lang
 
 import (
 	"testing"
 )
 
 func TestScanFunc(t *testing.T) {
-	input, err := openFile("tests/function.jlang")
+	input, err := openFile("../tests/function.jlang")
 	if err != nil {
 		t.Error(err)
 	}
@@ -70,7 +70,7 @@ func TestScanFunc(t *testing.T) {
 }
 
 func TestScanDoubleOperator(t *testing.T) {
-	input, err := openFile("tests/doubleop.jlang")
+	input, err := openFile("../tests/doubleop.jlang")
 	if err != nil {
 		t.Error(err)
 	}
@@ -120,7 +120,7 @@ func TestScanDoubleOperator(t *testing.T) {
 }
 
 func TestScanFor(t *testing.T) {
-	input, err := openFile("tests/for.jlang")
+	input, err := openFile("../tests/for.jlang")
 	if err != nil {
 		t.Error(err)
 	}
@@ -176,7 +176,7 @@ func TestScanFor(t *testing.T) {
 }
 
 func TestScanArithmetic(t *testing.T) {
-	input, err := openFile("tests/arithmetic.jlang")
+	input, err := openFile("../tests/arithmetic.jlang")
 	if err != nil {
 		t.Error(err)
 	}
