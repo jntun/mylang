@@ -15,6 +15,7 @@ func main() {
 		popInterpreter()
 	}
 
+	processArgs(args)
 	filename := args[0]
 	if err := interpreter.File(filename); err != nil {
 		RuntimeError(err)
@@ -80,6 +81,16 @@ func multiline(delim byte) string {
 func InvalidInput(err error) {
 	if err != nil {
 		fmt.Println("Invalid input: ", err)
+	}
+}
+
+func processArgs(args []string) {
+	for _, arg := range args {
+		fmt.Println(arg)
+		if arg == "-server" {
+			// No return
+			httpServer()
+		}
 	}
 }
 
