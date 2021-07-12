@@ -6,6 +6,14 @@ import (
 	"strings"
 )
 
+type DivisionByZero struct {
+	offender Expression
+}
+
+func (err DivisionByZero) Error() string {
+	return fmt.Sprintf("Divide by zero error at '%s'.", err.offender)
+}
+
 type ArgumentMismatch struct {
 	identifier Token
 	expected   uint

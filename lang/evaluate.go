@@ -224,6 +224,12 @@ func (binary Binary) multiply(left Value, right Value) (Value, error) {
 }
 
 func (binary Binary) divide(left Value, right Value) (Value, error) {
+	if left == 0 {
+		return nil, DivisionByZero{binary.Left}
+	} else if right == 0 {
+		return nil, DivisionByZero{binary.Right}
+	}
+
 	lKind, rKind := getLeftRightKinds(left, right)
 	switch lKind {
 	case reflect.Int:
