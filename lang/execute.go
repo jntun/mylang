@@ -122,8 +122,10 @@ func (stmt ForStatement) execute(intptr *Interpreter) error {
 			}
 		}
 		val, err = stmt.test.evaluate(intptr)
-		if assignErr := stmt.assign.execute(intptr); assignErr != nil {
-			return assignErr
+		if truthy(val) {
+			if assignErr := stmt.assign.execute(intptr); assignErr != nil {
+				return assignErr
+			}
 		}
 
 		if intptr.funcRet != nil {
