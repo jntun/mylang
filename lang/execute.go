@@ -15,7 +15,7 @@ func (stmt PrintStatement) execute(intptr *Interpreter) error {
 	if err != nil {
 		return err
 	}
-	intptr.log.Println(val)
+	intptr.writeLog.Println(val)
 	return nil
 }
 

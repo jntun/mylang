@@ -17,7 +17,7 @@ type Interpreter struct {
 	shouldBreak bool
 	funcRet     *Value
 	funcEnv     map[string]FunctionInvocation
-	log         *log.Logger
+	writeLog    *log.Logger
 }
 
 // Interpret accepts an input string and attempts to execute the given sequence
@@ -65,7 +65,7 @@ func (intptr *Interpreter) VariableMap(stmt VariableStatement) {
 	}
 	val, err := stmt.Expr.evaluate(intptr)
 	if err != nil {
-		fmt.Printf("%s\n", InternalError{30, fmt.Sprintf("Invalid variable binding: %s", err)})
+		intptr.writeLog.Printf("%s\n", InternalError{30, fmt.Sprintf("Invalid variable binding: %s", err)})
 	}
 
 	intptr.varEnv.store(stmt.Identifier.Lexeme, &val)
@@ -104,7 +104,7 @@ func (intptr *Interpreter) FunctionReturn(val Value) {
 
 // File accepts a direct source file path, reads it, and then calls Interpret() with the file string
 func (intptr *Interpreter) File(filepath string) error {
-	//log.Printf("Scanning file %s...\n", filepath)
+	//writeLog.Printf("Scanning file %s...\n", filepath)
 	src, err := openFile(filepath)
 	if err != nil {
 		return err
@@ -118,7 +118,7 @@ func (intptr *Interpreter) File(filepath string) error {
 }
 
 func (intptr *Interpreter) HookLogOut(out io.Writer) error {
-	intptr.log = log.New(out, "", 0)
+	intptr.writeLog = log.New(out, "", 0)
 	return nil
 }
 
@@ -128,9 +128,15 @@ func (intptr *Interpreter) flush() {
 }
 
 func NewInterpreter() *Interpreter {
-	intptr := &Interpreter{varEnv: NewEnvironment("var-global"), funcEnv: make(map[string]FunctionInvocation), log: log.New(os.Stdout, "", 0)}
+	intptr := &Interpreter{varEnv: NewEnvironment("var-global"), funcEnv: make(map[string]FunctionInvocation), writeLog: log.New(os.Stdout, "", 0)}
 	intptr.s = &Scanner{}
 	intptr.p = &Parser{}
+
+	// Set globals
+	for _, stmt := range globals() {
+		intptr.VariableMap(stmt)
+	}
+
 	return intptr
 }
 
@@ -146,4 +152,22 @@ func openFile(filepath string) (*string, error) {
 	dat := string(data)
 
 	return &dat, nil
+}
+
+func globals() []VariableStatement {
+	vars := make([]VariableStatement, 0)
+
+	vars = append(vars, VariableStatement{Identifier: Token{
+		Lexeme: "pi",
+		Type:   Identifier,
+		Line:   0,
+	},
+		Expr: Literal{Token{
+			Lexeme: "3.1415926535",
+			Type:   Number,
+			Line:   0,
+		}},
+	})
+
+	return vars
 }
