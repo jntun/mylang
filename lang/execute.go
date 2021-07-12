@@ -141,6 +141,5 @@ func (stmt ExpressionStatement) execute(intptr *Interpreter) error {
 	if err != nil {
 		return err
 	}
-	//fmt.Println(val)
 	return nil
 }

@@ -51,8 +51,6 @@ func (unary Unary) evaluate(intptr *Interpreter) (Value, error) {
 }
 
 func (binary Binary) evaluate(intptr *Interpreter) (Value, error) {
-	//fmt.Printf("%v %s %v = ", binary.Left, binary.Op.Lexeme, binary.Right)
-	//fmt.Println(reflect.TypeOf(binary.Left))
 	left, err := binary.Left.evaluate(intptr)
 	if err != nil {
 		return nil, err
@@ -273,10 +271,8 @@ func (literal Literal) evaluate(intptr *Interpreter) (Value, error) {
 	switch literal.Type {
 	case Number:
 		if strings.Contains(literal.Lexeme, ".") {
-			//fmt.Println("Number is rational:", literal.Lexeme)
 			return strconv.ParseFloat(literal.Lexeme, 64)
 		}
-		//fmt.Println("Number is irrational:", literal.Lexeme)
 		return strconv.Atoi(literal.Lexeme)
 	case String:
 		return literal.Lexeme, nil
@@ -310,7 +306,6 @@ func (fun FunctionInvocation) evaluate(intptr *Interpreter) (Value, error) {
 		}
 		for i, expr := range *fun.argExprs {
 			ids := *fun.stmt.args
-			//fmt.Printf("Assigning %s - %v\n", ids[i], expr)
 			intptr.VariableMap(VariableStatement{
 				Identifier: ids[i],
 				Expr:       expr,
