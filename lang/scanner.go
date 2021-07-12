@@ -270,7 +270,6 @@ func (scan *Scanner) isIdentifier() bool {
 }
 
 func (scan *Scanner) flush() {
-	//log.Println("Flushing scanner...")
 	scan.Errors = make([]error, 0)
 	scan.tokens = make([]Token, 0)
 	scan.start = 0

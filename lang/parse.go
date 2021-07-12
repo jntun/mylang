@@ -461,7 +461,6 @@ func (p *Parser) hadError(token Token, msg string) ParseError {
 }
 
 func (p *Parser) flush() {
-	//log.Println("Flushing parser...")
 	p.current = 0
 	p.Errors = make([]error, 0)
 }
