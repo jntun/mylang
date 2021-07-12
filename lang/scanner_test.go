@@ -246,7 +246,10 @@ func BenchmarkScanner(b *testing.B) {
 		"}"
 	scanner := Scanner{}
 	for i := 0; i < b.N; i++ {
-		scanner.Scan(input)
+		_, err := scanner.Scan(input)
+		if err != nil {
+			b.Error(err)
+		}
 	}
 }
 
