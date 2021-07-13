@@ -348,7 +348,7 @@ func (p *Parser) primary() Expression {
 			p.advance()
 
 			args = nil
-			expr := p.primary()
+			expr := p.expression()
 			args = make([]Expression, 0)
 			for expr != nil {
 
@@ -359,7 +359,7 @@ func (p *Parser) primary() Expression {
 					break
 				}
 
-				expr = p.primary()
+				expr = p.expression()
 			}
 			p.consume(RightParen, "Want ')' to close call.")
 			funcCall := FunctionCall{identifier, &args}
