@@ -11,11 +11,11 @@ func TestEnvPushPop(t *testing.T) {
 	env.push("2")
 	env.push("3")
 	env.push("4")
-	if len(env.blocks) != 5 {
+	if len(env.vars) != 5 {
 		t.Fail()
 	}
 	env.pop()
-	if len(env.blocks) != 4 {
+	if len(env.vars) != 4 {
 		t.Fail()
 	}
 	fmt.Println(env)

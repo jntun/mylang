@@ -13,9 +13,8 @@ import (
 type Interpreter struct {
 	s        *Scanner
 	p        *Parser
-	varEnv   Environment
+	env      Environment
 	funcRet  *Value
-	funcEnv  map[string]FunctionInvocation
 	writeLog *log.Logger
 }
 
@@ -58,8 +57,8 @@ func (intptr *Interpreter) interpret(program Program) error {
 // variable statement and now it's up to the interpreter to breathe life into it.
 func (intptr *Interpreter) VariableMap(stmt VariableStatement) {
 	if stmt.Expr == nil {
-		//intptr.varEnv[stmt.Identifier.Lexeme] = nil
-		intptr.varEnv.store(stmt.Identifier.Lexeme, nil)
+		//intptr.env[stmt.Identifier.Lexeme] = nil
+		intptr.env.varStore(stmt.Identifier.Lexeme, nil)
 		return
 	}
 	val, err := stmt.Expr.evaluate(intptr)
@@ -67,23 +66,23 @@ func (intptr *Interpreter) VariableMap(stmt VariableStatement) {
 		intptr.writeLog.Printf("%s\n", InternalError{30, fmt.Sprintf("Invalid variable binding: %s", err)})
 	}
 
-	intptr.varEnv.store(stmt.Identifier.Lexeme, &val)
+	intptr.env.varStore(stmt.Identifier.Lexeme, &val)
 }
 
 // VariableResolver is how an Identifier gets resolved to a real Value.
 // If it is invalid for any reason, an error is returned instead.
 func (intptr *Interpreter) VariableResolver(variable Variable) (Value, error) {
-	return intptr.varEnv.resolve(variable)
+	return intptr.env.resolve(variable)
 }
 
 // FunctionMap assumes the parser has *correctly* parsed a
 // FunctionDeclarationStatement and is now ready to be breathed life into from the interpreter.
 func (intptr *Interpreter) FunctionMap(stmt FunctionDeclarationStatement) {
-	intptr.funcEnv[stmt.Identifier.Lexeme] = FunctionInvocation{stmt, nil}
+	intptr.env.funcStore(FunctionInvocation{stmt, nil})
 }
 
 func (intptr *Interpreter) FunctionResolve(caller FunctionCall) (Value, error) {
-	if fun, found := intptr.funcEnv[caller.identifier.Lexeme]; found == true {
+	if fun, found := intptr.env.funcResolve(caller); found == true {
 		if err := fun.FillArgs(intptr, caller.args); err != nil {
 			return nil, err
 		}
@@ -127,7 +126,7 @@ func (intptr *Interpreter) flush() {
 }
 
 func NewInterpreter() *Interpreter {
-	intptr := &Interpreter{varEnv: NewEnvironment("var-global"), funcEnv: make(map[string]FunctionInvocation), writeLog: log.New(os.Stdout, "", 0)}
+	intptr := &Interpreter{env: NewEnvironment("global"), writeLog: log.New(os.Stdout, "", 0)}
 	intptr.s = &Scanner{}
 	intptr.p = &Parser{}
 
