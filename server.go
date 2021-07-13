@@ -10,6 +10,7 @@ import (
 
 func httpServer() {
 	http.HandleFunc("/jlang", jlangHandler)
+	http.HandleFunc("/public/", publicHandler)
 	http.HandleFunc("/", homeHandler)
 
 	s := &http.Server{
@@ -37,6 +38,15 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("home: %d | %v\n", ret, r)
 }
 
+func publicHandler(w http.ResponseWriter, r *http.Request) {
+	fileURL := r.URL.String()[len("/public/"):]
+	switch fileURL {
+	case "ace.js":
+		src := readStatic(fileURL[:len(".js")], "js")
+		write(src, w)
+	}
+}
+
 func jlangHandler(w http.ResponseWriter, r *http.Request) {
 	// TODO: the rest of the owl (build jlang interpreter hooking)
 	switch r.Method {
@@ -45,18 +55,8 @@ func jlangHandler(w http.ResponseWriter, r *http.Request) {
 	case "PUT":
 		runScript(w, r)
 	case "GET":
-		htmlFile, err := readStatic("jlang", "html")
-		if err != nil {
-			log.Printf("Unable to open html file 'jlang.html': %s.\n", err)
-			return
-		}
-
-		_, err = w.Write(htmlFile)
-
-		if err != nil {
-			log.Printf("Failed to write GET response: %s.\n", err)
-			return
-		}
+		src := readStatic("jlang", "html")
+		write(src, w)
 	}
 }
 
@@ -83,10 +83,17 @@ func runScript(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func readStatic(filename string, ext string) ([]byte, error) {
+func readStatic(filename string, ext string) []byte {
 	data, err := ioutil.ReadFile("./public/" + filename + "." + ext)
 	if err != nil {
-		return nil, err
+		log.Printf("Failed to load resource: %s.\n", err)
+		return []byte("Failure to load resource.")
 	}
-	return data, nil
+	return data
+}
+
+func write(data []byte, w http.ResponseWriter) {
+	if _, err := w.Write(data); err != nil {
+		log.Printf("Failure writing response: %s.\n", err)
+	}
 }

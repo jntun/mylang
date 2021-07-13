@@ -2,22 +2,26 @@
 <head>
     <meta charset="UTF-8">
     <title>Jlang Playground</title>
+    <script src="/public/ace.js" type="text/javascript" charset="utf-8"></script>
     <script type="text/javascript">
         let src;
         let out;
+        let editor;
         let req = new XMLHttpRequest();
 
         function onload() {
             src = document.getElementById('src');
             out = document.getElementById('output');
 
-            console.log("Load done.", src);
+            // Ace editor
+            editor = ace.edit("editor");
+            console.log("Load done.", editor);
         }
 
         function submit() {
             req.open("POST", "https://jntun.com/jlang");
             req.addEventListener('load', done);
-            req.send(src.value);
+            req.send(editor.getValue());
         }
 
         function done(e) {
@@ -31,6 +35,10 @@
             width: 40%;
             min-height: 40%;
         }
+        #output {
+            position: absolute;
+            top: 50%;
+        }
 
         #io-output {
             font-family: "Courier New";
@@ -38,14 +46,31 @@
         #output-word {
             color: blueviolet;
         }
+
+        #editor {
+            margin: 0;
+            position: absolute;
+            top: 10%;
+            bottom: 50%;
+            left: 10%;
+            right: 0;
+        }
     </style>
 </head>
 <body onload="onload();">
 <div id="root">
     <h3>Jlang</h3>
     <iframe src="https://ghbtns.com/github-btn.html?user=jntun&repo=mylang&type=star&count=true&size=large" frameborder="0" scrolling="0" width="170" height="30" title="GitHub"></iframe><br/>
-    <label for="src">></label>
-    <input id="src" value='print "hello" + " world" + " from jntun.com";' type="text" autofocus required/>
+    <!--<<label for="src">></label>
+    input id="src" value='print "hello" + " world" + " from jntun.com";' type="text" autofocus required/>-->
+<div id="editor">func welcome(name) {
+    return "hello, " + name + " from jntun.com";
+}
+
+// Your name here
+print welcome("");
+</div>
+
     <button name="run-code" onclick="submit();">Run</button>
     <br/>
     <p id="output"></p>
