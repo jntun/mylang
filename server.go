@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 )
 
 func httpServer() {
@@ -40,9 +41,20 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 
 func publicHandler(w http.ResponseWriter, r *http.Request) {
 	fileURL := r.URL.String()[len("/public/"):]
+	file := strings.Split(fileURL, ".")
+	if len(file) < 1 {
+		log.Printf("Invalid static file: %s.\n", r.URL.String())
+		return
+	}
+
 	switch fileURL {
 	case "ace.js":
-		src := readStatic(fileURL[:len(".js")], "js")
+		src := readStatic(file[0], file[1])
+		w.Header().Set("Content-Type", "text/javascript")
+		write(src, w)
+	case "style.css":
+		src := readStatic(file[0], file[1])
+		w.Header().Set("Content-Type", "text/css")
 		write(src, w)
 	}
 }
