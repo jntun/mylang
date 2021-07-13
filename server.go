@@ -45,7 +45,7 @@ func jlangHandler(w http.ResponseWriter, r *http.Request) {
 	case "PUT":
 		runScript(w, r)
 	case "GET":
-		htmlFile, err := readHTML("jlang")
+		htmlFile, err := readStatic("jlang", "html")
 		if err != nil {
 			log.Printf("Unable to open html file 'jlang.html': %s.\n", err)
 			return
@@ -83,8 +83,8 @@ func runScript(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func readHTML(filename string) ([]byte, error) {
-	data, err := ioutil.ReadFile("./public/" + filename + ".html")
+func readStatic(filename string, ext string) ([]byte, error) {
+	data, err := ioutil.ReadFile("./public/" + filename + "." + ext)
 	if err != nil {
 		return nil, err
 	}
