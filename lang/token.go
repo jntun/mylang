@@ -7,6 +7,8 @@ const (
 	RightParen
 	LeftBrace
 	RightBrace
+	LeftBracket
+	RightBracket
 	Comma
 	Dot
 	Semicolon
@@ -122,5 +124,5 @@ func (t Token) TypeString() string {
 
 // A go fmtd Token array output, useful for making tests
 func (t Token) FmtString() string {
-	return fmt.Sprintf("Token{\"%s\", %d, %d},", t.Lexeme, t.Type, t.Line)
+	return fmt.Sprintf("Token{\"%s\", %s, %d}", t.Lexeme, MasterTokenMap[t.Type], t.Line)
 }
