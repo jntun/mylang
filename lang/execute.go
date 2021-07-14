@@ -42,7 +42,7 @@ func (stmt IfStatement) execute(intptr *Interpreter) error {
 		return err
 	}
 
-	if ok := truthy(val); ok == true {
+	if ok := truthy(val); ok {
 		exec = stmt.block
 
 	} else if stmt.elseBlock != nil {
