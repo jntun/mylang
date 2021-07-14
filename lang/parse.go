@@ -121,6 +121,9 @@ func (p *Parser) variableStatement() (Statement, error) {
 
 	var expr Expression
 	if p.match(Equal) {
+		if p.peek().is(LeftBracket) {
+			return p.ArrayDeclaration(*identifier)
+		}
 		expr = p.expression()
 	}
 
@@ -137,6 +140,23 @@ func (p *Parser) assignmentStatement() (Statement, error) {
 	expr := p.expression()
 
 	return AssignmentStatement{VariableStatement{identifier, expr}}, nil
+}
+
+func (p *Parser) ArrayDeclaration(identifier Token) (Statement, error) {
+	p.consume(LeftBracket, "Want '[' for array declaration.")
+
+	exprList := make([]Expression, 0)
+	expr := p.expression()
+	for expr != nil {
+		exprList = append(exprList, expr)
+		if p.match(RightBracket) {
+			break
+		}
+		p.consume(Comma, "Want ',' to separate array expressions.")
+		expr = p.expression()
+	}
+
+	return VariableStatement{identifier, exprList[0]}, nil
 }
 
 func (p *Parser) IfStatement() (Statement, error) {
@@ -176,26 +196,6 @@ func (p *Parser) IfStatement() (Statement, error) {
 
 func (p *Parser) WhileStatement() (Statement, error) {
 	expr := p.expression()
-	/*
-		stmts := make([]Statement, 0)
-		p.consume(LeftBrace, "Expect '{' after while statement expression.")
-		for true {
-			val := p.peek()
-			if val.is(RightBrace) {
-				p.consume(RightBrace, "Expect '}' after while statement.")
-				return WhileStatement{expr, stmts}, nil
-			}
-			stmt, err := p.statement()
-			if err != nil {
-				return nil, err
-			}
-			stmts = append(stmts, stmt)
-			if p.isAtEnd() {
-				return nil, ParseError{p.src[p.current], "Want '}' to close while statement"}
-			}
-
-		}
-	*/
 	stmts, err := p.blockStatement("while")
 	if err != nil {
 		return nil, err
@@ -374,7 +374,7 @@ func (p *Parser) primary() Expression {
 		return Grouping{expr}
 	}
 
-	p.error = p.hadError(p.previous(), "Expected expression.")
+	p.error = p.hadError(p.src[p.current], "Expected expression.")
 	return nil
 }
 

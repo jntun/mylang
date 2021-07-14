@@ -24,6 +24,11 @@ type FunctionDeclarationStatement struct {
 	block      []Statement
 }
 
+type ArrayDeclarationStatement struct {
+	Identifier Token
+	ExprList   []Expression
+}
+
 type AssignmentStatement struct {
 	VariableStatement
 }
@@ -84,6 +89,11 @@ type FunctionCall struct {
 type FunctionInvocation struct {
 	stmt     FunctionDeclarationStatement
 	argExprs *[]Expression
+}
+
+type ArrayAccess struct {
+	identifier Token
+	index      int
 }
 
 type Operator struct{ Token }

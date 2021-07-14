@@ -59,6 +59,10 @@ func (scan *Scanner) scanToken() {
 		scan.addToken(LeftBrace)
 	case '}':
 		scan.addToken(RightBrace)
+	case '[':
+		scan.addToken(LeftBracket)
+	case ']':
+		scan.addToken(RightBracket)
 	case ',':
 		scan.addToken(Comma)
 	case '.':

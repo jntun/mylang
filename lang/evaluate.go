@@ -343,6 +343,10 @@ func (fun *FunctionInvocation) FillArgs(intptr *Interpreter, argExprs *[]Express
 	return nil
 }
 
+func (array ArrayAccess) evaluate(intptr *Interpreter) (Value, error) {
+	return nil, nil
+}
+
 func getLeftRightKinds(left Value, right Value) (reflect.Kind, reflect.Kind) {
 	return reflect.TypeOf(left).Kind(), reflect.TypeOf(right).Kind()
 }

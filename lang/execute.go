@@ -68,6 +68,11 @@ func (stmt FunctionDeclarationStatement) execute(intptr *Interpreter) error {
 	return nil
 }
 
+func (stmt ArrayDeclarationStatement) execute(intptr *Interpreter) error {
+	// TODO: Store 'Array' object in interpreter environment
+	return nil
+}
+
 func (stmt ReturnStatement) execute(intptr *Interpreter) error {
 	val, err := stmt.Expression.evaluate(intptr)
 	if err != nil {
