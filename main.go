@@ -86,7 +86,6 @@ func InvalidInput(err error) {
 
 func processArgs(args []string) {
 	for _, arg := range args {
-		fmt.Println(arg)
 		if arg == "-server" {
 			// No return
 			httpServer()
