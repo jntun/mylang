@@ -120,6 +120,13 @@ func (intptr *Interpreter) HookLogOut(out io.Writer) error {
 	return nil
 }
 
+func (intptr *Interpreter) shouldBreak() bool {
+	if intptr.funcRet != nil {
+		return true
+	}
+	return false
+}
+
 func (intptr *Interpreter) flush() {
 	intptr.s.flush()
 	intptr.p.flush()

@@ -55,7 +55,7 @@ func (stmt IfStatement) execute(intptr *Interpreter) error {
 			return err
 		}
 
-		if intptr.funcRet != nil {
+		if intptr.shouldBreak() {
 			break
 		}
 	}
@@ -99,7 +99,7 @@ func (stmt WhileStatement) execute(intptr *Interpreter) error {
 		}
 		val, err = stmt.test.evaluate(intptr)
 
-		if intptr.funcRet != nil {
+		if intptr.shouldBreak() {
 			break
 		}
 	}
@@ -133,7 +133,7 @@ func (stmt ForStatement) execute(intptr *Interpreter) error {
 			}
 		}
 
-		if intptr.funcRet != nil {
+		if intptr.shouldBreak() {
 			break
 		}
 	}
