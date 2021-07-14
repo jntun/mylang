@@ -97,14 +97,3 @@ func processArgs(args []string) {
 func RuntimeError(err error) {
 	fmt.Println(err)
 }
-
-func printTokens(tokens []lang.Token) {
-	for _, token := range tokens {
-		fmt.Println(token.FmtString())
-	}
-}
-
-// todo is a drop in code holder for future features
-func todo() {
-	fmt.Println("TODO.")
-}
