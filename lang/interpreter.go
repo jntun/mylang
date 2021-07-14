@@ -169,3 +169,9 @@ func globals() []VariableStatement {
 
 	return vars
 }
+
+func printTokens(tokens []Token) {
+	for _, token := range tokens {
+		fmt.Printf("%s,\n", token.FmtString())
+	}
+}
