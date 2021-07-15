@@ -27,6 +27,8 @@ var vector = [1.0, 1.0, 1.0];
 print vector[0];
 ```
 
+<h2>Statements</h2>
+
 <h3>For</h3>
 
 ```go
@@ -53,3 +55,9 @@ while x < 50 {
     x = x + 1;
 }
 ```
+
+<p>
+
+For more examples see the [/tests/](https://github.com/jntun/mylang/tree/master/tests) directory
+
+</p>
