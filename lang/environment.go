@@ -87,6 +87,10 @@ func (env Environment) funcStore(fun FunctionInvocation) {
 	env.funcs[len(env.funcs)-1].store.(funcMap)[fun.stmt.Identifier.Lexeme] = fun
 }
 
+func (env Environment) arrayStore(identifier string, arr []*Value) {
+	env.arrays[len(env.arrays)-1].store.(arrayMap)[identifier] = arr
+}
+
 func (env *Environment) pop() {
 	env.vars = env.vars[:len(env.vars)-1]
 	env.funcs = env.funcs[:len(env.funcs)-1]

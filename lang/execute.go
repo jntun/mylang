@@ -69,7 +69,15 @@ func (stmt FunctionDeclarationStatement) execute(intptr *Interpreter) error {
 }
 
 func (stmt ArrayDeclarationStatement) execute(intptr *Interpreter) error {
-	// TODO: Store 'Array' object in interpreter environment
+	vals := make([]*Value, 0)
+	for _, expr := range stmt.ExprList {
+		if val, err := expr.evaluate(intptr); err != nil {
+			return err
+		} else {
+			vals = append(vals, &val)
+		}
+	}
+	intptr.env.arrayStore(stmt.Identifier.Lexeme, vals)
 	return nil
 }
 
