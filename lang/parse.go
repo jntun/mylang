@@ -156,7 +156,7 @@ func (p *Parser) ArrayDeclaration(identifier Token) (Statement, error) {
 		expr = p.expression()
 	}
 
-	return VariableStatement{identifier, exprList[0]}, nil
+	return ArrayDeclarationStatement{identifier, exprList}, nil
 }
 
 func (p *Parser) IfStatement() (Statement, error) {
