@@ -12,6 +12,7 @@ import (
 func httpServer() {
 	http.HandleFunc("/jlang", jlangHandler)
 	http.HandleFunc("/public/", publicHandler)
+	http.HandleFunc("/test/", testHandler)
 	http.HandleFunc("/", homeHandler)
 
 	s := &http.Server{
@@ -59,6 +60,12 @@ func publicHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func testHandler(w http.ResponseWriter, r *http.Request) {
+	fileURL := r.URL.String()[len("/test/"):]
+	//file := strings.Split(fileURL, ".")
+	write(readTest(fileURL), w)
+}
+
 func jlangHandler(w http.ResponseWriter, r *http.Request) {
 	// TODO: the rest of the owl (build jlang interpreter hooking)
 	switch r.Method {
@@ -102,6 +109,30 @@ func readStatic(filename string, ext string) []byte {
 		return []byte("Failure to load resource.")
 	}
 	return data
+}
+
+func readTest(filename string) []byte {
+	testFiles, err := ioutil.ReadDir("./tests/")
+	if err != nil {
+		return testFailure(err)
+	}
+
+	for _, file := range testFiles {
+		if file.Name() == filename {
+			bytes, err := ioutil.ReadFile("./tests/" + file.Name())
+			if err != nil {
+				return testFailure(err)
+			}
+			return bytes
+		}
+	}
+
+	return testFailure(fmt.Errorf("failed to find file '%s'\n", filename))
+}
+
+func testFailure(err error) []byte {
+	log.Printf("Failure to load test file: %s.\n", err)
+	return []byte("// Failure to load script from server :^(")
 }
 
 func write(data []byte, w http.ResponseWriter) {
