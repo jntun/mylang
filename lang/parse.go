@@ -365,6 +365,15 @@ func (p *Parser) primary() Expression {
 			funcCall := FunctionCall{identifier, &args}
 			return funcCall
 		}
+		if p.peek().is(LeftBracket) {
+			identifer := p.previous()
+			p.advance()
+
+			if index := p.expression(); index != nil {
+				p.consume(RightBracket, "Want ']' to close array index expression.")
+				return ArrayAccess{identifer, index}
+			}
+		}
 		return Variable{p.previous()}
 	}
 

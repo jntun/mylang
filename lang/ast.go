@@ -93,7 +93,7 @@ type FunctionInvocation struct {
 
 type ArrayAccess struct {
 	identifier Token
-	index      int
+	index      Expression
 }
 
 type Operator struct{ Token }
