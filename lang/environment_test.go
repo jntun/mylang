@@ -1,7 +1,6 @@
 package lang
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -18,5 +17,5 @@ func TestEnvPushPop(t *testing.T) {
 	if len(env.vars) != 4 {
 		t.Fail()
 	}
-	fmt.Println(env)
+	t.Log(env)
 }

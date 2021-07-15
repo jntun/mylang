@@ -97,8 +97,9 @@ func (env *Environment) pop() {
 }
 
 func (env *Environment) push(blockID string) {
-	env.vars = append(env.vars, Block{blockID, make(varMap)})
-	env.funcs = append(env.funcs, Block{blockID, make(funcMap)})
+	env.vars = append(env.vars, Block{blockID + "-var", make(varMap)})
+	env.funcs = append(env.funcs, Block{blockID + "-func", make(funcMap)})
+	env.arrays = append(env.arrays, Block{blockID + "-arr", make(arrayMap)})
 }
 
 func NewEnvironment(id string) Environment {
