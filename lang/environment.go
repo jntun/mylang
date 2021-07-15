@@ -1,8 +1,9 @@
 package lang
 
 type Environment struct {
-	vars  []Block
-	funcs []Block
+	vars   []Block
+	funcs  []Block
+	arrays []Block
 }
 
 type store interface {
@@ -30,6 +31,13 @@ type funcMap map[string]FunctionInvocation
 func (funs funcMap) query(id string) (interface{}, bool) {
 	fun, found := funs[id]
 	return fun, found
+}
+
+type arrayMap map[string][]*Value
+
+func (arrays arrayMap) query(id string) (interface{}, bool) {
+	arr, found := arrays[id]
+	return arr, found
 }
 
 func (env Environment) resolve(variable Variable) (Value, error) {
@@ -70,8 +78,9 @@ func (env *Environment) push(blockID string) {
 }
 
 func NewEnvironment(id string) Environment {
-	env := Environment{make([]Block, 1), make([]Block, 1)}
+	env := Environment{make([]Block, 1), make([]Block, 1), make([]Block, 1)}
 	env.vars[0] = Block{id, make(varMap)}
 	env.funcs[0] = Block{id, make(funcMap)}
+	env.arrays[0] = Block{id, make(arrayMap)}
 	return env
 }
