@@ -7,11 +7,13 @@ It is a  Javascript/ECMAScript style language with a mix of go flavorings. It do
 
 <h2>_Declarations_</h2>
 <h3>Variable</h3>
+
 ```go
 var test = "hello" + "world: " + pi;
 ```
 
 <h3>Function</h3>
+
 ```go
 func area(x, y) {
     return x * y;
@@ -19,12 +21,14 @@ func area(x, y) {
 ```
 
 <h3>Arrays</h3>
+
 ```go
 var vector = [1.0, 1.0, 1.0];
 print vector[0];
 ```
 
 <h3>For</h3>
+
 ```go
 for var i = 0; i < 10; i = ++i {
 	print i;
@@ -41,6 +45,7 @@ for i > 0;  i = --i {
 ```
 
 <h3>While</h3>
+
 ```javascript
 var x = 0;
 while x < 50 {
