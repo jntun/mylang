@@ -344,7 +344,14 @@ func (fun *FunctionInvocation) FillArgs(intptr *Interpreter, argExprs *[]Express
 }
 
 func (array ArrayAccess) evaluate(intptr *Interpreter) (Value, error) {
-	return nil, nil
+	index, err := array.index.evaluate(intptr)
+	if err != nil {
+		return nil, err
+	}
+	if kind := reflect.TypeOf(index).Kind(); kind != reflect.Int {
+		return nil, fmt.Errorf("invalid type '%s' for index of array '%s'", kind.String(), array.identifier.Lexeme)
+	}
+	return intptr.env.arrayResolve(array, index.(int))
 }
 
 func getLeftRightKinds(left Value, right Value) (reflect.Kind, reflect.Kind) {
