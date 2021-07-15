@@ -1,49 +1,62 @@
 package lang
 
 type Environment struct {
-	vars  []VarBlock
-	funcs []FuncBlock
+	vars  []Block
+	funcs []Block
+}
+
+type store interface {
+	query(id string) (interface{}, bool)
+}
+
+type Block struct {
+	id    string
+	store store
 }
 
 type varMap map[string]*Value
-type funcMap map[string]FunctionInvocation
 
-type VarBlock struct {
-	id   string
-	vars varMap
+func (vars varMap) query(id string) (interface{}, bool) {
+	val, found := vars[id]
+	if val == nil {
+		return nil, found
+	}
+
+	return *val, found
 }
 
-type FuncBlock struct {
-	id    string
-	items funcMap
+type funcMap map[string]FunctionInvocation
+
+func (funs funcMap) query(id string) (interface{}, bool) {
+	fun, found := funs[id]
+	return fun, found
 }
 
 func (env Environment) resolve(variable Variable) (Value, error) {
 	for i := len(env.vars) - 1; i >= 0; i-- {
-		blockEnv := env.vars[i]
-		val, found := blockEnv.vars[variable.identifier.Lexeme]
+		val, found := env.vars[i].store.query(variable.identifier.Lexeme)
 		if !found {
 			continue
 		}
 		if val == nil {
 			return nil, nil
 		}
-		return *val, nil
+		return val, nil
 	}
 	return nil, UnknownIdentifier{variable}
 }
 
 func (env Environment) funcResolve(call FunctionCall) (FunctionInvocation, bool) {
-	fun, found := env.funcs[len(env.funcs)-1].items[call.identifier.Lexeme]
-	return fun, found
+	fun, found := env.funcs[len(env.funcs)-1].store.query(call.identifier.Lexeme)
+	return fun.(FunctionInvocation), found
 }
 
 func (env Environment) varStore(identifier string, val *Value) {
-	env.vars[len(env.vars)-1].vars[identifier] = val
+	env.vars[len(env.vars)-1].store.(varMap)[identifier] = val
 }
 
 func (env Environment) funcStore(fun FunctionInvocation) {
-	env.funcs[len(env.funcs)-1].items[fun.stmt.Identifier.Lexeme] = fun
+	env.funcs[len(env.funcs)-1].store.(funcMap)[fun.stmt.Identifier.Lexeme] = fun
 }
 
 func (env *Environment) pop() {
@@ -52,14 +65,13 @@ func (env *Environment) pop() {
 }
 
 func (env *Environment) push(blockID string) {
-	env.vars = append(env.vars, VarBlock{blockID, make(varMap)})
-	env.funcs = append(env.funcs, FuncBlock{blockID, make(funcMap)})
+	env.vars = append(env.vars, Block{blockID, make(varMap)})
+	env.funcs = append(env.funcs, Block{blockID, make(funcMap)})
 }
 
 func NewEnvironment(id string) Environment {
-	env := Environment{make([]VarBlock, 1), make([]FuncBlock, 1)}
-	env.vars[0] = VarBlock{id, make(varMap)}
-	env.funcs[0] = FuncBlock{id, make(funcMap)}
-
+	env := Environment{make([]Block, 1), make([]Block, 1)}
+	env.vars[0] = Block{id, make(varMap)}
+	env.funcs[0] = Block{id, make(funcMap)}
 	return env
 }
