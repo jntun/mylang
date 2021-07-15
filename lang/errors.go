@@ -6,6 +6,16 @@ import (
 	"strings"
 )
 
+type OutOfBounds struct {
+	array  ArrayAccess
+	actual int
+}
+
+func (err OutOfBounds) Error() string {
+	name := err.array.identifier.Lexeme
+	return fmt.Sprintf("Out of bounds access on array '%s'\n\t'%s' is length %d while the index was %d", name, name, err.actual, err.array.index)
+}
+
 type DivisionByZero struct {
 	offender Expression
 }
@@ -49,11 +59,11 @@ func (err NilReference) Error() string {
 }
 
 type UnknownIdentifier struct {
-	variable Variable
+	Token
 }
 
 func (err UnknownIdentifier) Error() string {
-	return fmt.Sprintf("Unable to reference unknown variable '%s' on line %d.", err.variable.identifier.Lexeme, err.variable.identifier.Line)
+	return fmt.Sprintf("Unable to reference unknown variable '%s' on line %d.", err.Lexeme, err.Line)
 }
 
 type InvalidTypeCombination struct {

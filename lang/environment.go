@@ -51,12 +51,32 @@ func (env Environment) varResolve(variable Variable) (Value, error) {
 		}
 		return val, nil
 	}
-	return nil, UnknownIdentifier{variable}
+	return nil, UnknownIdentifier{variable.identifier}
 }
 
 func (env Environment) funcResolve(call FunctionCall) (FunctionInvocation, bool) {
 	fun, found := env.funcs[len(env.funcs)-1].store.query(call.identifier.Lexeme)
 	return fun.(FunctionInvocation), found
+}
+
+func (env Environment) arrayResolve(arr ArrayAccess) (Value, error) {
+	for i := len(env.arrays) - 1; i >= 0; i-- {
+		queryArray, found := env.arrays[i].store.query(arr.identifier.Lexeme)
+		if !found {
+			continue
+		}
+		valArr := queryArray.([]*Value)
+		if arrLen := len(valArr); arrLen < arr.index {
+			return nil, OutOfBounds{arr, arrLen}
+		}
+		if valArr[arr.index] != nil {
+			return *valArr[arr.index], nil
+		} else {
+			return nil, nil
+		}
+	}
+
+	return nil, UnknownIdentifier{arr.identifier}
 }
 
 func (env Environment) varStore(identifier string, val *Value) {
