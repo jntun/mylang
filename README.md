@@ -5,7 +5,7 @@ It is a  Javascript/ECMAScript style language with a mix of go flavorings. It do
 **_Try it on [jntun.com/jlang](https://jntun.com/jlang)!_**
 </p>
 
-<h2>*Declarations*</h2>
+<h2>Declarations</h2>
 <h3>Variable</h3>
 
 ```go
