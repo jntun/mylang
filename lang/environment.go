@@ -40,7 +40,7 @@ func (arrays arrayMap) query(id string) (interface{}, bool) {
 	return arr, found
 }
 
-func (env Environment) resolve(variable Variable) (Value, error) {
+func (env Environment) varResolve(variable Variable) (Value, error) {
 	for i := len(env.vars) - 1; i >= 0; i-- {
 		val, found := env.vars[i].store.query(variable.identifier.Lexeme)
 		if !found {

@@ -72,7 +72,7 @@ func (intptr *Interpreter) VariableMap(stmt VariableStatement) {
 // VariableResolver is how an Identifier gets resolved to a real Value.
 // If it is invalid for any reason, an error is returned instead.
 func (intptr *Interpreter) VariableResolver(variable Variable) (Value, error) {
-	return intptr.env.resolve(variable)
+	return intptr.env.varResolve(variable)
 }
 
 // FunctionMap assumes the parser has *correctly* parsed a
