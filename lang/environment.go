@@ -1,6 +1,9 @@
 package lang
 
-// FIXME: an argument 'x' gets mapped into the vars-block upon a FunctionInvocation but then the ArrayAccess stmt in the function block queries the arrays-block.
+import (
+	"fmt"
+	"reflect"
+)
 
 type Environment struct {
 	vars   []Block
@@ -69,23 +72,35 @@ func (env Environment) funcResolve(call FunctionCall) (FunctionInvocation, bool)
 }
 
 func (env Environment) arrayResolve(arr ArrayAccess, index int) (Value, error) {
+	var valArr []*Value
 	for i := len(env.arrays) - 1; i >= 0; i-- {
 		queryArray, found := env.arrays[i].store.query(arr.identifier.Lexeme)
 		if !found {
 			continue
 		}
-		valArr := queryArray.([]*Value)
-		if arrLen := len(valArr); arrLen < index {
-			return nil, OutOfBounds{arr, arrLen}
-		}
-		if valArr[index] != nil {
-			return *valArr[index], nil
-		} else {
-			return nil, nil
-		}
+		valArr = queryArray.([]*Value)
 	}
 
-	return nil, UnknownIdentifier{arr.identifier}
+	if valArr == nil {
+		varBlock, err := env.varResolve(Variable{arr.identifier})
+		if err != nil {
+			return nil, err
+		}
+		if kind := reflect.TypeOf(varBlock).Kind(); kind != reflect.Slice {
+			return nil, InternalError{50, fmt.Sprintf("wanted array type for access statement got '%s'.", kind)}
+		}
+
+		valArr = varBlock.([]*Value)
+	}
+
+	if arrLen := len(valArr); arrLen < index {
+		return nil, OutOfBounds{arr, arrLen}
+	}
+	if valArr[index] != nil {
+		return *valArr[index], nil
+	} else {
+		return nil, nil
+	}
 }
 
 func (env Environment) varStore(identifier string, val *Value) {
