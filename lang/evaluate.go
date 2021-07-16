@@ -306,10 +306,7 @@ func (fun FunctionInvocation) evaluate(intptr *Interpreter) (Value, error) {
 		}
 		for i, expr := range *fun.argExprs {
 			ids := *fun.stmt.args
-			intptr.VariableMap(VariableStatement{
-				Identifier: ids[i],
-				Expr:       expr,
-			})
+			intptr.VariableMap(VariableStatement{ids[i], expr})
 		}
 	}
 
