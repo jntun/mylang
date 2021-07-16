@@ -331,7 +331,7 @@ func (fun FunctionInvocation) evaluate(intptr *Interpreter) (Value, error) {
 	return nil, nil
 }
 
-func (fun *FunctionInvocation) FillArgs(intptr *Interpreter, argExprs *[]Expression) error {
+func (fun *FunctionInvocation) FillArgs(argExprs *[]Expression) error {
 	if argExprs == nil {
 		return nil
 	}
