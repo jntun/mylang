@@ -3,13 +3,22 @@ package main
 import (
 	"fmt"
 	jlang "github.com/jntun/mylang/lang"
+	"io/fs"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
 )
 
+var testFiles []fs.FileInfo
+
 func httpServer() {
+	var err error
+	testFiles, err = ioutil.ReadDir("./tests/")
+	if err != nil {
+		log.Println(fmt.Errorf("failed loading '/tests/' directory. running without test serving"))
+		return
+	}
 	http.HandleFunc("/jlang", jlangHandler)
 	http.HandleFunc("/public/", publicHandler)
 	http.HandleFunc("/test/", testHandler)
@@ -67,7 +76,6 @@ func testHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func jlangHandler(w http.ResponseWriter, r *http.Request) {
-	// TODO: the rest of the owl (build jlang interpreter hooking)
 	switch r.Method {
 	case "POST":
 		runScript(w, r)
@@ -112,10 +120,6 @@ func readStatic(filename string, ext string) []byte {
 }
 
 func readTest(filename string) []byte {
-	testFiles, err := ioutil.ReadDir("./tests/")
-	if err != nil {
-		return testFailure(err)
-	}
 
 	for _, file := range testFiles {
 		if file.Name() == filename {
