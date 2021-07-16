@@ -1,5 +1,7 @@
 package lang
 
+// FIXME: an argument 'x' gets mapped into the vars-block upon a FunctionInvocation but then the ArrayAccess stmt in the function block queries the arrays-block.
+
 type Environment struct {
 	vars   []Block
 	funcs  []Block
