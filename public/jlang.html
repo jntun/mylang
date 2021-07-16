@@ -29,6 +29,25 @@
             out.innerHTML = "<span id=\"io-output\">"+"<span id='output-word'>out></span> "+req.response+"</span>";
             req = new XMLHttpRequest();
         }
+
+        function example() {
+            let file = document.getElementById('example-select');
+            let filename = file[file.selectedIndex].value;
+
+            //req.open("GET", "https://jntun.com/test/"+filename+".jlang");
+            let url = "http://127.0.0.1/test/"+filename+".jlang";
+            console.log("url:", url);
+            req.open("GET", url);
+            req.addEventListener('load', updateExample)
+            req.send()
+        }
+
+        function updateExample(e) {
+            //console.log(e, req.response);
+            editor.setValue(req.response, editor.getCursorPosition());
+
+            req = new XMLHttpRequest();
+        }
     </script>
     <style>
         #editor {
@@ -46,6 +65,15 @@
 <div id="root">
     <h2>Jlang</h2>
     <iframe src="https://ghbtns.com/github-btn.html?user=jntun&repo=mylang&type=star&count=true&size=large" frameborder="0" scrolling="0" width="170" height="30" title="GitHub"></iframe><br/>
+    <select name="examples" id="example-select" onchange="example();">
+        <option value="for">for.jlang</option>
+        <option value="function">function.jlang</option>
+        <option value="array">array.jlang</option>
+        <option value="if">if.jlang</option>
+        <option value="while">while.jlang</option>
+        <option value="ifelse">ifelse.jlang</option>
+        <option value="varexprstmt">varexpression.jlang</option>
+    </select>
 <div id="editor">func welcome(name) {
     return "hello, " + name + " - from jntun.com";
 }
