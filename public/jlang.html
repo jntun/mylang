@@ -40,7 +40,6 @@
         }
 
         function updateExample(e) {
-            //console.log(e, req.response);
             editor.setValue(req.response, editor.getCursorPosition());
 
             req = new XMLHttpRequest();
@@ -69,7 +68,6 @@
         <option value="if">if.jlang</option>
         <option value="while">while.jlang</option>
         <option value="ifelse">ifelse.jlang</option>
-        <option value="varexprstmt">varexpression.jlang</option>
     </select>
 <div id="editor">func welcome(name) {
     return "hello, " + name + " - from jntun.com";
