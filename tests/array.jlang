@@ -1,6 +1,6 @@
 var test = [1, true, "hello", "world", pi, 6];
 
-for var i = 0; i < 5; i = ++i {
+for var i = 0; i < len(test); i = ++i {
     print test[i];
 }
 
