@@ -7,13 +7,13 @@ import (
 )
 
 type OutOfBounds struct {
-	array  ArrayAccess
+	arrLex string
+	index  int
 	actual int
 }
 
 func (err OutOfBounds) Error() string {
-	name := err.array.identifier.Lexeme
-	return fmt.Sprintf("Out of bounds access on array '%s'\n\t'%s' is length %d while the index was %d", name, name, err.actual, err.array.index)
+	return fmt.Sprintf("Out of bounds access on array '%s'\n\t'%s' is length %d while the index was %d", err.arrLex, err.arrLex, err.actual, err.index)
 }
 
 type DivisionByZero struct {

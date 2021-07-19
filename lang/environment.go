@@ -100,7 +100,7 @@ func (env Environment) arrayResolve(arr ArrayAccess, index int) (Value, error) {
 	}
 
 	if arrLen := len(valArr) - 1; arrLen < index {
-		return nil, OutOfBounds{arr, arrLen}
+		return nil, OutOfBounds{arr.identifier.Lexeme, index, arrLen}
 	}
 	if valArr[index] != nil {
 		return *valArr[index], nil
