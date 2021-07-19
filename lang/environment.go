@@ -11,16 +11,18 @@ type Environment struct {
 	arrays []Block
 }
 
-type store interface {
-	query(id string) (interface{}, bool)
-}
-
 type Block struct {
 	id    string
 	store store
 }
 
 type varMap map[string]*Value
+type funcMap map[string]FunctionInvocation
+type arrayMap map[string][]*Value
+
+type store interface {
+	query(id string) (interface{}, bool)
+}
 
 func (vars varMap) query(id string) (interface{}, bool) {
 	val, found := vars[id]
@@ -31,14 +33,10 @@ func (vars varMap) query(id string) (interface{}, bool) {
 	return *val, found
 }
 
-type funcMap map[string]FunctionInvocation
-
 func (funs funcMap) query(id string) (interface{}, bool) {
 	fun, found := funs[id]
 	return fun, found
 }
-
-type arrayMap map[string][]*Value
 
 func (arrays arrayMap) query(id string) (interface{}, bool) {
 	arr, found := arrays[id]
@@ -67,8 +65,16 @@ func (env Environment) varResolve(variable Variable) (Value, error) {
 }
 
 func (env Environment) funcResolve(call FunctionCall) (FunctionInvocation, bool) {
-	fun, found := env.funcs[len(env.funcs)-1].store.query(call.identifier.Lexeme)
-	return fun.(FunctionInvocation), found
+	var fun FunctionInvocation
+	for i := len(env.funcs) - 1; i >= 0; i-- {
+		funIn, found := env.funcs[i].store.query(call.identifier.Lexeme)
+		if found {
+			fun = funIn.(FunctionInvocation)
+			return fun, found
+		}
+	}
+
+	return fun, false
 }
 
 func (env Environment) arrayResolve(arr ArrayAccess, index int) (Value, error) {
@@ -93,7 +99,7 @@ func (env Environment) arrayResolve(arr ArrayAccess, index int) (Value, error) {
 		valArr = varBlock.([]*Value)
 	}
 
-	if arrLen := len(valArr); arrLen < index {
+	if arrLen := len(valArr) - 1; arrLen < index {
 		return nil, OutOfBounds{arr, arrLen}
 	}
 	if valArr[index] != nil {
@@ -121,9 +127,9 @@ func (env *Environment) pop() {
 }
 
 func (env *Environment) push(blockID string) {
-	env.vars = append(env.vars, Block{blockID + "-var", make(varMap)})
-	env.funcs = append(env.funcs, Block{blockID + "-func", make(funcMap)})
-	env.arrays = append(env.arrays, Block{blockID + "-arr", make(arrayMap)})
+	env.vars = append(env.vars, Block{"var-" + blockID, make(varMap)})
+	env.funcs = append(env.funcs, Block{"fun-" + blockID, make(funcMap)})
+	env.arrays = append(env.arrays, Block{"arr-" + blockID, make(arrayMap)})
 }
 
 func NewEnvironment(id string) Environment {
