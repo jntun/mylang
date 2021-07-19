@@ -294,6 +294,7 @@ func (variable Variable) evaluate(intptr *Interpreter) (Value, error) {
 }
 
 func (fun FunctionCall) evaluate(intptr *Interpreter) (Value, error) {
+	intptr.env.push(fmt.Sprintf("%s@%d", fun.identifier.Lexeme, fun.identifier.Line))
 	return intptr.FunctionResolve(fun)
 }
 
@@ -314,7 +315,7 @@ func (fun FunctionInvocation) evaluate(intptr *Interpreter) (Value, error) {
 		if err := stmt.execute(intptr); err != nil {
 			return nil, err
 		}
-		if intptr.funcRet != nil {
+		if intptr.shouldBreak() {
 			break
 		}
 	}
