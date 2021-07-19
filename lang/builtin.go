@@ -16,7 +16,7 @@ func (l Len) evaluate(intptr *Interpreter) (Value, error) {
 	}
 
 	if kind := reflect.TypeOf(v).Kind(); kind == reflect.Array || kind == reflect.Slice {
-		return len(v.([]*Value)), nil
+		return len(v.([]*Value)) - 1, nil
 	} else {
 		return 0, fmt.Errorf("type '%s' doesn't have len() implementation", kind)
 	}
