@@ -8,8 +8,6 @@ import (
 	"os"
 )
 
-// TODO Logging system for the interpreter
-
 type Interpreter struct {
 	s        *Scanner
 	p        *Parser
@@ -57,7 +55,6 @@ func (intptr *Interpreter) interpret(program Program) error {
 // variable statement and now it's up to the interpreter to breathe life into it.
 func (intptr *Interpreter) VariableMap(stmt VariableStatement) {
 	if stmt.Expr == nil {
-		//intptr.env[stmt.Identifier.Lexeme] = nil
 		intptr.env.varStore(stmt.Identifier.Lexeme, nil)
 		return
 	}
@@ -139,7 +136,10 @@ func NewInterpreter() *Interpreter {
 
 	// Set globals
 	for _, stmt := range globals() {
-		intptr.VariableMap(stmt)
+		err := stmt.execute(intptr)
+		if err != nil {
+			panic(fmt.Errorf("couldn't load globals: %s", err))
+		}
 	}
 
 	return intptr
@@ -157,24 +157,6 @@ func openFile(filepath string) (*string, error) {
 	dat := string(data)
 
 	return &dat, nil
-}
-
-func globals() []VariableStatement {
-	vars := make([]VariableStatement, 0)
-
-	vars = append(vars, VariableStatement{Identifier: Token{
-		Lexeme: "pi",
-		Type:   Identifier,
-		Line:   0,
-	},
-		Expr: Literal{Token{
-			Lexeme: "3.1415926535",
-			Type:   Number,
-			Line:   0,
-		}},
-	})
-
-	return vars
 }
 
 func printTokens(tokens []Token) {
