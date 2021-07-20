@@ -3,6 +3,7 @@ package lang
 import (
 	"fmt"
 	"reflect"
+	"time"
 )
 
 type Len struct {
@@ -22,6 +23,12 @@ func (l Len) evaluate(intptr *Interpreter) (Value, error) {
 	}
 }
 
+type Time struct{}
+
+func (t Time) evaluate(intptr *Interpreter) (Value, error) {
+	return int(time.Now().UnixNano() / 1000000), nil
+}
+
 func globals() []Statement {
 	globals := make([]Statement, 0)
 
@@ -29,6 +36,9 @@ func globals() []Statement {
 
 	globals = append(globals, makeBuiltinFunc("len", []string{"v"}, []Statement{
 		ReturnStatement{Len{}, nil},
+	}))
+	globals = append(globals, makeBuiltinFunc("time", []string{}, []Statement{
+		ReturnStatement{Time{}, nil},
 	}))
 
 	return globals
