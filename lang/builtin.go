@@ -2,6 +2,7 @@ package lang
 
 import (
 	"fmt"
+	"math"
 	"reflect"
 	"time"
 )
@@ -29,6 +30,40 @@ func (t Time) evaluate(intptr *Interpreter) (Value, error) {
 	return int(time.Now().UnixNano() / 1000000), nil
 }
 
+type Pow struct{}
+
+func (p Pow) evaluate(intptr *Interpreter) (Value, error) {
+	x, err := intptr.VariableResolver(Variable{Token{"x", Identifier, 0}})
+	if err != nil {
+		return nil, err
+	}
+	y, err := intptr.VariableResolver(Variable{Token{"y", Identifier, 0}})
+	if err != nil {
+		return nil, err
+	}
+
+	switch reflect.TypeOf(x).Kind() {
+	case reflect.Int:
+		if yKind := reflect.TypeOf(y).Kind(); yKind == reflect.Int {
+			return math.Pow(float64(x.(int)), float64(y.(int))), nil
+		} else if yKind == reflect.Float64 {
+			return math.Pow(float64(x.(int)), y.(float64)), nil
+		} else {
+			return nil, fmt.Errorf("invalid type '%s' in 'pow' call.", yKind)
+		}
+	case reflect.Float64:
+		if yKind := reflect.TypeOf(y).Kind(); yKind == reflect.Int {
+			return math.Pow(x.(float64), float64(y.(int))), nil
+		} else if yKind == reflect.Float64 {
+			return math.Pow(x.(float64), y.(float64)), nil
+		} else {
+			return nil, fmt.Errorf("invalid type '%s' in 'pow' call.", yKind)
+		}
+	}
+
+	return nil, fmt.Errorf("invalid type '%s' in 'pow' call", reflect.TypeOf(x).Kind())
+}
+
 func globals() []Statement {
 	globals := make([]Statement, 0)
 
@@ -39,6 +74,9 @@ func globals() []Statement {
 	}))
 	globals = append(globals, makeBuiltinFunc("time", []string{}, []Statement{
 		ReturnStatement{Time{}, nil},
+	}))
+	globals = append(globals, makeBuiltinFunc("pow", []string{"x", "y"}, []Statement{
+		ReturnStatement{Pow{}, nil},
 	}))
 
 	return globals
