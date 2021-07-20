@@ -1,0 +1,15 @@
+var vec = [180, 75.0, 180]
+var T = [2, 1, 2.5];
+
+func scalar(x, y) {
+    if len(x) != len(y) {
+        return "x, y len do not match";
+    }
+    var total = 0;
+    for var i = 0; i < len(x); i = ++i {
+        total = total + (x[i] * y[i]);
+    }
+    return total;
+}
+
+print scalar(vec, T);
