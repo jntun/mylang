@@ -11,7 +11,7 @@ type Len struct {
 }
 
 func (l Len) evaluate(intptr *Interpreter) (Value, error) {
-	v, err := intptr.VariableResolver(Variable{identifier: Token{Lexeme: "v", Type: Identifier, Line: 0}})
+	v, err := intptr.VariableResolver(Variable{Token{"v", Identifier, 0}})
 	if err != nil {
 		return nil, err
 	}
@@ -32,7 +32,7 @@ func (t Time) evaluate(intptr *Interpreter) (Value, error) {
 func globals() []Statement {
 	globals := make([]Statement, 0)
 
-	globals = append(globals, VariableStatement{Identifier: Token{Lexeme: "pi", Type: Identifier, Line: 0}, Expr: Literal{Token{Lexeme: "3.1415926535", Type: Number, Line: 0}}})
+	globals = append(globals, VariableStatement{Token{"pi", Identifier, 0}, Literal{Token{"3.1415926535", Number, 0}}})
 
 	globals = append(globals, makeBuiltinFunc("len", []string{"v"}, []Statement{
 		ReturnStatement{Len{}, nil},
@@ -50,9 +50,5 @@ func makeBuiltinFunc(identifier string, args []string, block []Statement) Functi
 		tokenArgs[i] = Token{arg, Identifier, 0}
 	}
 
-	return FunctionDeclarationStatement{
-		Identifier: Token{identifier, Identifier, 0},
-		args:       &tokenArgs,
-		block:      block,
-	}
+	return FunctionDeclarationStatement{Token{identifier, Identifier, 0}, &tokenArgs, block}
 }
