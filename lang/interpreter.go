@@ -60,7 +60,8 @@ func (intptr *Interpreter) VariableMap(stmt VariableStatement) {
 	}
 	val, err := stmt.Expr.evaluate(intptr)
 	if err != nil {
-		intptr.writeLog.Printf("%s\n", InternalError{30, fmt.Sprintf("Invalid variable binding: %s", err)})
+		intptr.writeLog.Printf("%s\n", fmt.Errorf("invalid assignment expression on %d at '%s': %s", stmt.Identifier.Line, stmt.Identifier.Lexeme, err))
+		return
 	}
 
 	intptr.env.varStore(stmt.Identifier.Lexeme, &val)
