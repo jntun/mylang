@@ -299,6 +299,7 @@ func (fun FunctionCall) evaluate(intptr *Interpreter) (Value, error) {
 }
 
 func (fun FunctionInvocation) evaluate(intptr *Interpreter) (Value, error) {
+	defer intptr.env.pop()
 
 	// If we have args, map them to the interpreter environment
 	if fun.argExprs != nil {
