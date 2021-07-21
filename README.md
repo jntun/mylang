@@ -32,8 +32,8 @@ print vector[0];
 <h3>For</h3>
 
 ```go
-for var i = 0; i < 10; i = ++i {
-	print i;
+for var i = 0; i < len(vector); i = ++i {
+	print vector[i];
 }
 ```
 
