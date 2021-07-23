@@ -6,9 +6,8 @@ import (
 )
 
 type Environment struct {
-	vars   []Block
-	funcs  []Block
-	arrays []Block
+	vars  []Block
+	funcs []Block
 }
 
 type Block struct {
@@ -18,7 +17,6 @@ type Block struct {
 
 type varMap map[string]*Value
 type funcMap map[string]FunctionInvocation
-type arrayMap map[string][]*Value
 
 type store interface {
 	query(id string) (interface{}, bool)
@@ -38,11 +36,6 @@ func (funs funcMap) query(id string) (interface{}, bool) {
 	return fun, found
 }
 
-func (arrays arrayMap) query(id string) (interface{}, bool) {
-	arr, found := arrays[id]
-	return arr, found
-}
-
 func (env Environment) varResolve(variable Variable) (Value, error) {
 	for i := len(env.vars) - 1; i >= 0; i-- {
 		val, found := env.vars[i].store.query(variable.identifier.Lexeme)
@@ -53,13 +46,6 @@ func (env Environment) varResolve(variable Variable) (Value, error) {
 			return nil, nil
 		}
 		return val, nil
-	}
-	for i := len(env.arrays) - 1; i >= 0; i-- {
-		arr, found := env.arrays[i].store.query(variable.identifier.Lexeme)
-		if !found {
-			continue
-		}
-		return arr, nil
 	}
 	return nil, UnknownIdentifier{variable.identifier}
 }
@@ -79,25 +65,15 @@ func (env Environment) funcResolve(call FunctionCall) (FunctionInvocation, bool)
 
 func (env Environment) arrayResolve(arr ArrayAccess, index int) (Value, error) {
 	var valArr []*Value
-	for i := len(env.arrays) - 1; i >= 0; i-- {
-		queryArray, found := env.arrays[i].store.query(arr.identifier.Lexeme)
-		if !found {
-			continue
-		}
-		valArr = queryArray.([]*Value)
+	varBlock, err := env.varResolve(Variable{arr.identifier})
+	if err != nil {
+		return nil, err
+	}
+	if kind := reflect.TypeOf(varBlock).Kind(); kind != reflect.Slice {
+		return nil, InternalError{50, fmt.Sprintf("wanted array type for access statement got '%s'.", kind)}
 	}
 
-	if valArr == nil {
-		varBlock, err := env.varResolve(Variable{arr.identifier})
-		if err != nil {
-			return nil, err
-		}
-		if kind := reflect.TypeOf(varBlock).Kind(); kind != reflect.Slice {
-			return nil, InternalError{50, fmt.Sprintf("wanted array type for access statement got '%s'.", kind)}
-		}
-
-		valArr = varBlock.([]*Value)
-	}
+	valArr = varBlock.([]*Value)
 
 	if arrLen := len(valArr) - 1; arrLen < index {
 		return nil, OutOfBounds{arr.identifier.Lexeme, index, arrLen}
@@ -118,7 +94,10 @@ func (env Environment) funcStore(fun FunctionInvocation) {
 }
 
 func (env Environment) arrayStore(identifier string, arr []*Value) {
-	env.arrays[len(env.arrays)-1].store.(arrayMap)[identifier] = arr
+	/* Currently 'arr' is an array of pointers to Value interfaces. What we need to store into the varMap is a Value pointer */
+	/* As far as I'm concerned, magic is the only way that's going to happen so that's exactly what'll be done */
+	x := magic(arr)
+	env.vars[len(env.vars)-1].store.(varMap)[identifier] = &x
 }
 
 func (env *Environment) pop() {
@@ -129,13 +108,16 @@ func (env *Environment) pop() {
 func (env *Environment) push(blockID string) {
 	env.vars = append(env.vars, Block{"var-" + blockID, make(varMap)})
 	env.funcs = append(env.funcs, Block{"fun-" + blockID, make(funcMap)})
-	env.arrays = append(env.arrays, Block{"arr-" + blockID, make(arrayMap)})
 }
 
 func NewEnvironment(id string) Environment {
-	env := Environment{make([]Block, 1), make([]Block, 1), make([]Block, 1)}
+	env := Environment{make([]Block, 1), make([]Block, 1)}
 	env.vars[0] = Block{id, make(varMap)}
 	env.funcs[0] = Block{id, make(funcMap)}
-	env.arrays[0] = Block{id, make(arrayMap)}
 	return env
+}
+
+// I don't know what the implications of this magic are
+func magic(x interface{}) Value {
+	return x
 }
