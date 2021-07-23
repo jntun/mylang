@@ -1,7 +1,7 @@
 var vec = [180, 75.0, 180]
 var T = [2, 1, 2.5];
 
-func scalar(x, y) {
+func hadamard(x, y) {
     if len(x) != len(y) {
         return "x, y len do not match";
     }
@@ -12,4 +12,4 @@ func scalar(x, y) {
     return total;
 }
 
-print scalar(vec, T);
+print hadamard(vec, T);
