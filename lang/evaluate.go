@@ -14,6 +14,9 @@ func (grouping Grouping) evaluate(intptr *Interpreter) (Value, error) {
 }
 
 func (unary Unary) evaluate(intptr *Interpreter) (Value, error) {
+	if unary.Expr == nil {
+		return nil, InvalidOperation{unary.Op}
+	}
 	expr, err := unary.Expr.evaluate(intptr)
 	if err != nil {
 		return nil, err
