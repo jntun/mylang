@@ -55,6 +55,12 @@ func TestInterpretArray(t *testing.T) {
 	}
 }
 
+func TestInterpretClass(t *testing.T) {
+	if err := genFile("class"); err != nil {
+		t.Error(err)
+	}
+}
+
 func TestInterpretFunc(t *testing.T) {
 	if err := genFile("function"); err != nil {
 		if reflect.TypeOf(err).Name() != "ArgumentMismatch" {

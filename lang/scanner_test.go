@@ -4,6 +4,66 @@ import (
 	"testing"
 )
 
+func TestScanClass(t *testing.T) {
+	input, err := openFile("../tests/class.jlang")
+	if err != nil {
+		return
+	}
+	scan := Scanner{}
+	tokens, err := scan.Scan(*input)
+	if err != nil {
+		t.Error(err)
+	}
+
+	expectedTokens := []Token{
+		Token{"class", Class, 1},
+		Token{"Test", Identifier, 1},
+		Token{"{", LeftBrace, 1},
+		Token{"var", Var, 2},
+		Token{"name", Identifier, 2},
+		Token{"=", Equal, 2},
+		Token{"test_class", String, 2},
+		Token{";", Semicolon, 2},
+		Token{"var", Var, 3},
+		Token{"id", Identifier, 3},
+		Token{"=", Equal, 3},
+		Token{"1", Number, 3},
+		Token{";", Semicolon, 3},
+		Token{"func", Function, 5},
+		Token{"getName", Identifier, 5},
+		Token{"(", LeftParen, 5},
+		Token{")", RightParen, 5},
+		Token{"{", LeftBrace, 5},
+		Token{"return", Return, 6},
+		Token{"this", Identifier, 6},
+		Token{".", Dot, 6},
+		Token{"name", Identifier, 6},
+		Token{"+", Plus, 6},
+		Token{"-", String, 6},
+		Token{"+", Plus, 6},
+		Token{"this", Identifier, 6},
+		Token{".", Dot, 6},
+		Token{"id", Identifier, 6},
+		Token{";", Semicolon, 6},
+		Token{"}", RightBrace, 7},
+		Token{"}", RightBrace, 8},
+		Token{"var", Var, 10},
+		Token{"test", Identifier, 10},
+		Token{"=", Equal, 10},
+		Token{"Test", Identifier, 10},
+		Token{"(", LeftParen, 10},
+		Token{")", RightParen, 10},
+		Token{";", Semicolon, 10},
+		Token{"print", Print, 11},
+		Token{"test", Identifier, 11},
+		Token{";", Semicolon, 11},
+	}
+
+	if matched, got, expect := tokenMatch(t, tokens, expectedTokens); !matched {
+		gotExpectError(t, got, expect)
+	}
+}
+
 func TestScanFunc(t *testing.T) {
 	input, err := openFile("../tests/function.jlang")
 	if err != nil {
