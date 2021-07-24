@@ -1,0 +1,12 @@
+class Test {
+    var name = "test_class";
+    var id = 1; 
+
+    func getName() {
+        return this.name + "-" + this.id;
+    }
+}
+
+var test = Test();
+print test;
+//print test.getName();
