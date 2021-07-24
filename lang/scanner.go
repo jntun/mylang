@@ -149,6 +149,11 @@ func (scan *Scanner) multi(val byte) {
 		}
 	}
 
+	if val == 'c' && scan.matchStr("lass") {
+		scan.addToken(Class)
+		return
+	}
+
 	if val == 'p' && scan.matchStr("rint") {
 		scan.addToken(Print)
 		return
