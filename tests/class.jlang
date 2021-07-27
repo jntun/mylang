@@ -3,7 +3,8 @@ class Test {
     var id = 1; 
 
     func getName() {
-        return this.name + "-" + this.id;
+        //return this.name + "-" + this.id;
+        return "hello world!";
     }
 }
 
