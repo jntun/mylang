@@ -58,9 +58,16 @@ func (this JlangClassInstance) execute(intptr *Interpreter) error {
 }
 
 func (this JlangClassInstance) updateMember(intptr *Interpreter, vari VariableStatement) error {
-	val, err := vari.Expr.evaluate(intptr)
-	if err != nil {
-		return err
+	var val Value
+	var err error
+
+	if vari.Expr != nil {
+		val, err = vari.Expr.evaluate(intptr)
+		if err != nil {
+			return err
+		}
+	} else {
+		val = nil
 	}
 	this.scope.varStore(vari.Identifier.Lexeme, &val)
 	return nil

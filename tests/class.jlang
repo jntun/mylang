@@ -1,4 +1,5 @@
 class Test {
+    var empty;
     var name = "test_class";
     var id = 1; 
 
@@ -6,6 +7,8 @@ class Test {
         //return this.name + "-" + this.id;
         return "hello world!";
     }
+
+    func nothing(x, y) {}
 }
 
 var test = Test();
