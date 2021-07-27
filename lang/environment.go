@@ -85,12 +85,32 @@ func (env Environment) arrayResolve(arr ArrayAccess, index int) (Value, error) {
 	}
 }
 
+func (env Environment) classResolve(identifier Token) (JlangClass, error) {
+	var class JlangClass
+
+	val, err := env.varResolve(Variable{identifier})
+	if err != nil {
+		return JlangClass{}, err
+	}
+	if typeStr := reflect.TypeOf(val).String(); typeStr != "lang.JlangClass" {
+		return class, fmt.Errorf("'%s' is not a Class type - is %s", identifier.Lexeme, typeStr)
+	}
+	class = val.(JlangClass)
+
+	return class, nil
+}
+
 func (env Environment) varStore(identifier string, val *Value) {
 	env.vars[len(env.vars)-1].store.(varMap)[identifier] = val
 }
 
 func (env Environment) funcStore(fun FunctionInvocation) {
 	env.funcs[len(env.funcs)-1].store.(funcMap)[fun.stmt.Identifier.Lexeme] = fun
+}
+
+func (env Environment) classStore(class JlangClass) {
+	x := magic(class)
+	env.vars[len(env.vars)-1].store.(varMap)[class.identifier.Lexeme] = &x
 }
 
 func (env Environment) arrayStore(identifier string, arr []*Value) {
