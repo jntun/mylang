@@ -81,6 +81,11 @@ type Variable struct {
 	identifier Token
 }
 
+type Call struct {
+	identifer Token
+	args      *[]Expression
+}
+
 type FunctionCall struct {
 	identifier Token
 	args       *[]Expression

@@ -296,6 +296,25 @@ func (variable Variable) evaluate(intptr *Interpreter) (Value, error) {
 	return intptr.VariableResolver(variable)
 }
 
+func (call Call) evaluate(intptr *Interpreter) (Value, error) {
+	val, err := call.asFunctionCall().evaluate(intptr)
+	if err == nil {
+		return val, nil
+	}
+	if class, err := intptr.env.classResolve(call.identifer); err == nil {
+		instance, err := class.evaluate(intptr)
+		if err == nil {
+			return instance, nil
+		}
+	}
+
+	return nil, BadCall{call.identifer, err}
+}
+
+func (call *Call) asFunctionCall() FunctionCall {
+	return FunctionCall{call.identifer, call.args}
+}
+
 func (fun FunctionCall) evaluate(intptr *Interpreter) (Value, error) {
 	intptr.env.push(fmt.Sprintf("%s@%d", fun.identifier.Lexeme, fun.identifier.Line))
 	return intptr.FunctionResolve(fun)

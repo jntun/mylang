@@ -2,6 +2,7 @@ package lang
 
 import (
 	"fmt"
+	"reflect"
 )
 
 // Parser is how a Jlang token sequence gets parsed and turned into Expressions
@@ -50,6 +51,8 @@ func (p *Parser) statement() (Statement, error) {
 		return p.ForStatement()
 	case Function:
 		return p.FunctionDeclaration()
+	case Class:
+		return p.ClassDeclaration()
 	case Return:
 		if expr := p.expression(); expr != nil {
 			return ReturnStatement{expr, nil}, nil
@@ -58,6 +61,51 @@ func (p *Parser) statement() (Statement, error) {
 	p.reverse()
 
 	return p.ExpressionStatement()
+}
+
+func (p *Parser) ClassDeclaration() (Statement, error) {
+	identifier := p.consume(Identifier, "Want identifier after 'class' keyword.")
+	p.consume(LeftBrace, "Expect '{' after class identifier.")
+	var constructor *FunctionDeclarationStatement = nil
+	varDecls := make([]VariableStatement, 0)
+	funcDecls := make([]FunctionDeclarationStatement, 0)
+
+	for true {
+		if p.match(RightBrace) {
+			break
+		}
+		start := p.current
+		stmt, err := p.statement()
+		if err != nil {
+			return nil, err
+		}
+		switch reflect.TypeOf(stmt).String() {
+		case "lang.FunctionDeclarationStatement":
+			funcDecls = append(funcDecls, stmt.(FunctionDeclarationStatement))
+		case "lang.VariableStatement":
+			varDecl := stmt.(VariableStatement)
+			varDecls = append(varDecls, varDecl)
+			p.consume(Semicolon, fmt.Sprintf("Expect ';' after '%s' member declaration.", varDecl.Identifier.Lexeme))
+		default:
+			return nil, InvalidClassStatement{*identifier, p.src[start]}
+		}
+	}
+
+	if len(funcDecls) == 0 {
+		funcDecls = nil
+	}
+	if len(varDecls) == 0 {
+		varDecls = nil
+	}
+
+	return JlangClass{
+		*identifier,
+		struct {
+			constructor *FunctionDeclarationStatement
+			varDecls    *[]VariableStatement
+			funcDecls   *[]FunctionDeclarationStatement
+		}{constructor, &varDecls, &funcDecls},
+	}, nil
 }
 
 func (p *Parser) FunctionDeclaration() (Statement, error) {
@@ -347,23 +395,11 @@ func (p *Parser) primary() Expression {
 			var args []Expression
 			p.advance()
 
-			args = nil
-			expr := p.expression()
-			args = make([]Expression, 0)
-			for expr != nil {
+			args = p.argsExprs()
 
-				args = append(args, expr)
-				if !p.peek().is(RightParen) {
-					p.consume(Comma, "Want ',' after argument.")
-				} else {
-					break
-				}
-
-				expr = p.expression()
-			}
 			p.consume(RightParen, "Want ')' to close call.")
-			funcCall := FunctionCall{identifier, &args}
-			return funcCall
+			call := Call{identifier, &args}
+			return call
 		}
 		if p.peek().is(LeftBracket) {
 			identifer := p.previous()
@@ -385,6 +421,22 @@ func (p *Parser) primary() Expression {
 
 	p.error = p.hadError(p.src[p.current], "Expected expression.")
 	return nil
+}
+
+func (p *Parser) argsExprs() []Expression {
+	expr := p.expression()
+	args := make([]Expression, 0)
+	for expr != nil {
+		args = append(args, expr)
+		if !p.peek().is(RightParen) {
+			p.consume(Comma, "Want ',' after argument.")
+		} else {
+			break
+		}
+
+		expr = p.expression()
+	}
+	return args
 }
 
 /******* Scanning state functions *********/
