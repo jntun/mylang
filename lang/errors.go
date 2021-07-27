@@ -6,6 +6,15 @@ import (
 	"strings"
 )
 
+type InvalidClassStatement struct {
+	class Token
+	src   Token
+}
+
+func (err InvalidClassStatement) Error() string {
+	return fmt.Sprintf("Not a valid class statement at '%s' in class '%s' on %d.", err.src.Lexeme, err.class.Lexeme, err.src.Line)
+}
+
 type OutOfBounds struct {
 	arrLex string
 	index  int
@@ -31,15 +40,19 @@ type ArgumentMismatch struct {
 }
 
 func (err ArgumentMismatch) Error() string {
-	return fmt.Sprintf("Argument length mismatch for '%s' call:\n\tWant %d, got %d.", err.identifier.Lexeme, err.expected, err.got)
+	return fmt.Sprintf("argument length mismatch for '%s' call: want %d, got %d.", err.identifier.Lexeme, err.expected, err.got)
 }
 
 type BadCall struct {
-	id Token
+	id   Token
+	more error
 }
 
 func (err BadCall) Error() string {
-	return fmt.Sprintf("bad call to '%s'", err.id.Lexeme)
+	if err.more != nil {
+		return fmt.Sprintf("bad call to '%s'\n\tmore: %s", err.id.Lexeme, err.more)
+	}
+	return fmt.Sprintf("unable to reference unknown '%s'", err.id.Lexeme)
 }
 
 type InvalidOperation struct {
