@@ -91,7 +91,7 @@ func (intptr *Interpreter) FunctionResolve(caller FunctionCall) (Value, error) {
 		}
 		return val, nil
 	}
-	return nil, BadCall{caller.identifier}
+	return nil, BadCall{caller.identifier, nil}
 }
 
 func (intptr *Interpreter) FunctionReturn(val Value) {

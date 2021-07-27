@@ -63,7 +63,7 @@ func TestInterpretClass(t *testing.T) {
 
 func TestInterpretFunc(t *testing.T) {
 	if err := genFile("function"); err != nil {
-		if reflect.TypeOf(err).Name() != "ArgumentMismatch" {
+		if reflect.TypeOf(err).Name() != "BadCall" {
 			t.Error(err)
 		}
 	}
