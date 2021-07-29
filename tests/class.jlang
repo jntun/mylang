@@ -3,6 +3,10 @@ class Test {
     var name = "test_class";
     var id = 1; 
 
+    func Test() {
+        print "init";
+    }
+
     func getName() {
         //return this.name + "-" + this.id;
         return "hello world!";
