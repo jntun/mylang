@@ -81,7 +81,11 @@ func (p *Parser) ClassDeclaration() (Statement, error) {
 		}
 		switch reflect.TypeOf(stmt).String() {
 		case "lang.FunctionDeclarationStatement":
-			funcDecls = append(funcDecls, stmt.(FunctionDeclarationStatement))
+			funk := stmt.(FunctionDeclarationStatement)
+			if identifier.Lexeme == funk.Identifier.Lexeme {
+				constructor = &funk
+				continue
+			}
 		case "lang.VariableStatement":
 			varDecl := stmt.(VariableStatement)
 			varDecls = append(varDecls, varDecl)
@@ -192,18 +196,9 @@ func (p *Parser) assignmentStatement() (Statement, error) {
 
 func (p *Parser) ArrayDeclaration(identifier Token) (Statement, error) {
 	p.consume(LeftBracket, "Want '[' for array declaration.")
+	exprList := p.argsExprs(RightBracket)
 
-	exprList := make([]Expression, 0)
-	expr := p.expression()
-	for expr != nil {
-		exprList = append(exprList, expr)
-		if p.match(RightBracket) {
-			break
-		}
-		p.consume(Comma, "Want ',' to separate array expressions.")
-		expr = p.expression()
-	}
-
+	p.consume(RightBracket, "Expect ']' to close array declaration.")
 	return ArrayDeclarationStatement{identifier, exprList}, nil
 }
 
@@ -395,7 +390,7 @@ func (p *Parser) primary() Expression {
 			var args []Expression
 			p.advance()
 
-			args = p.argsExprs()
+			args = p.argsExprs(RightParen)
 
 			p.consume(RightParen, "Want ')' to close call.")
 			call := Call{identifier, &args}
@@ -423,12 +418,12 @@ func (p *Parser) primary() Expression {
 	return nil
 }
 
-func (p *Parser) argsExprs() []Expression {
+func (p *Parser) argsExprs(delim int) []Expression {
 	expr := p.expression()
 	args := make([]Expression, 0)
 	for expr != nil {
 		args = append(args, expr)
-		if !p.peek().is(RightParen) {
+		if !p.peek().is(delim) {
 			p.consume(Comma, "Want ',' after argument.")
 		} else {
 			break
