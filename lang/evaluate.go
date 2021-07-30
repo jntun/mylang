@@ -365,8 +365,19 @@ func (fun *FunctionInvocation) FillArgs(argExprs *[]Expression) error {
 }
 
 func (prop PropertyAccess) evaluate(intptr *Interpreter) (Value, error) {
-	// TODO
-	return 0, nil
+	val, err := prop.Expr.evaluate(intptr)
+	if err != nil {
+		return nil, err
+	}
+	switch reflect.TypeOf(val).String() {
+	case reflect.TypeOf(JlangClassInstance{}).String():
+		// TODO: resolve to class
+		return 0, nil
+	case reflect.TypeOf(JlangClass{}).String():
+		return 1, nil
+	}
+
+	return nil, BadPropertyAccess{prop.identifier, fmt.Errorf("type '%s' does not implement property access", reflect.TypeOf(val))}
 }
 
 func (array ArrayAccess) evaluate(intptr *Interpreter) (Value, error) {

@@ -6,6 +6,15 @@ import (
 	"strings"
 )
 
+type BadPropertyAccess struct {
+	propId Token
+	reason error
+}
+
+func (err BadPropertyAccess) Error() string {
+	return fmt.Sprintf("Invalid property access at %d: %s.", err.propId.Line, err.reason)
+}
+
 type InvalidClassStatement struct {
 	class Token
 	src   Token
