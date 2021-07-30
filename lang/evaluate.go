@@ -364,6 +364,11 @@ func (fun *FunctionInvocation) FillArgs(argExprs *[]Expression) error {
 	return nil
 }
 
+func (prop PropertyAccess) evaluate(intptr *Interpreter) (Value, error) {
+	// TODO
+	return 0, nil
+}
+
 func (array ArrayAccess) evaluate(intptr *Interpreter) (Value, error) {
 	index, err := array.index.evaluate(intptr)
 	if err != nil {
