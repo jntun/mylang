@@ -371,8 +371,7 @@ func (p *Parser) unary() Expression {
 }
 
 func (p *Parser) call() Expression {
-	if p.peek().is(Identifier) {
-		p.advance()
+	if p.match(Identifier) {
 		if p.peek().is(LeftParen) {
 			identifier := p.previous()
 			p.consume(LeftParen, fmt.Sprintf("Expected '(' after identifier '%s'.", identifier.Lexeme))
