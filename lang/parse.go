@@ -410,12 +410,12 @@ func (p *Parser) primary() Expression {
 	if p.match(Identifier) {
 
 		if p.peek().is(LeftBracket) {
-			identifer := p.previous()
+			identifier := p.previous()
 			p.advance()
 
 			if index := p.expression(); index != nil {
 				p.consume(RightBracket, "Want ']' to close array index expression.")
-				return ArrayAccess{identifer, index}
+				return ArrayAccess{identifier, index}
 			}
 		}
 		return Variable{p.previous()}

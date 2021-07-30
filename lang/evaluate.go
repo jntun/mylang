@@ -301,18 +301,18 @@ func (call Call) evaluate(intptr *Interpreter) (Value, error) {
 	if err == nil {
 		return val, nil
 	}
-	if class, err := intptr.env.classResolve(call.identifer); err == nil {
+	if class, err := intptr.env.classResolve(call.identifier); err == nil {
 		instance, err := class.evaluate(intptr)
 		if err == nil {
 			return instance, nil
 		}
 	}
 
-	return nil, BadCall{call.identifer, err}
+	return nil, BadCall{call.identifier, err}
 }
 
 func (call *Call) asFunctionCall() FunctionCall {
-	return FunctionCall{call.identifer, call.args}
+	return FunctionCall{call.identifier, call.args}
 }
 
 func (fun FunctionCall) evaluate(intptr *Interpreter) (Value, error) {
