@@ -367,7 +367,30 @@ func (p *Parser) unary() Expression {
 		return Unary{op, right}
 	}
 
-	return p.primary()
+	return p.call()
+}
+
+func (p *Parser) call() Expression {
+	if p.peek().is(Identifier) {
+		p.advance()
+		if p.peek().is(LeftParen) {
+			identifier := p.previous()
+			p.consume(LeftParen, fmt.Sprintf("Expected '(' after identifier '%s'.", identifier.Lexeme))
+			args := p.argsExprs(RightParen)
+			p.consume(RightParen, fmt.Sprintf("Expected ')' to close call to '%s'.", identifier.Lexeme))
+			return Call{identifier, &args}
+		}
+		p.reverse()
+	}
+
+	expr := p.primary()
+
+	if p.match(Dot) {
+		identifier := p.consume(Identifier, "Expect identifier after '.' for property access.")
+		return PropertyAccess{expr, *identifier}
+	}
+
+	return expr
 }
 
 func (p *Parser) primary() Expression {
@@ -385,17 +408,7 @@ func (p *Parser) primary() Expression {
 		return Literal{p.previous()}
 	}
 	if p.match(Identifier) {
-		if p.peek().is(LeftParen) {
-			identifier := p.previous()
-			var args []Expression
-			p.advance()
 
-			args = p.argsExprs(RightParen)
-
-			p.consume(RightParen, "Want ')' to close call.")
-			call := Call{identifier, &args}
-			return call
-		}
 		if p.peek().is(LeftBracket) {
 			identifer := p.previous()
 			p.advance()
