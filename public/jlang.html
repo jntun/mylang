@@ -45,41 +45,32 @@
             req = new XMLHttpRequest();
         }
     </script>
-    <style>
-        #editor {
-            margin: 0;
-            position: absolute;
-            top: 10%;
-            bottom: 50%;
-            left: 5%;
-            right: 0;
-            background: #FFD;
-        }
-    </style>
 </head>
 <body onload="onload();">
 <div id="root">
-    <h2>Jlang</h2>
-    <iframe src="https://ghbtns.com/github-btn.html?user=jntun&repo=mylang&type=star&count=true&size=large" frameborder="0" scrolling="0" width="170" height="30" title="GitHub"></iframe><br/>
-    <select name="examples" id="example-select" onchange="example();">
-        <option value="for">for.jlang</option>
-        <option value="function">function.jlang</option>
-        <option value="array">array.jlang</option>
-        <option value="if">if.jlang</option>
-        <option value="while">while.jlang</option>
-        <option value="ifelse">ifelse.jlang</option>
-        <option value="hadamard">hadamard.jlang</option>
-    </select>
-<div id="editor">func welcome(name) {
-    return "hello, " + name + " - from jntun.com";
-}
+    <h1 class="cell" id="jlang-header">Jlang</h1>
+    <iframe  class="cell" id="github-link" src="https://ghbtns.com/github-btn.html?user=jntun&repo=mylang&type=star&count=true&size=large" frameborder="0" scrolling="0" width="170" height="30" title="GitHub"></iframe><br/>
+    <div id="playground">
+        <select class="cell" name="examples" id="example-select" onchange="example();">
+            <option value="if">if.jlang</option>
+            <option value="ifelse">ifelse.jlang</option>
+            <option value="for">for.jlang</option>
+            <option value="while">while.jlang</option>
+            <option value="array">array.jlang</option>
+            <option value="function">function.jlang</option>
+            <option value="hadamard">hadamard.jlang</option>
+        </select>
+        <button class="cell" id="run-code" onclick="submit();">Run</button>
+        <div class="break"></div>
+    <div class="cell" id="editor">func welcome(name) {
+        return "hello, " + name + " - from jntun.com";
+    }
 
-// Your name here
-print welcome("");</div>
-    <button id="run-code" onclick="submit();">Run</button>
-    <br/>
-    <p id="output"></p>
+    // Your name here
+    print welcome("");</div>
+        <br/>
+        <p class="cell" id="output"><span id="io-output">temp output... [1, 2, 3];</span></p>
+    </div>
 </div>
-
 </body>
 </html>
