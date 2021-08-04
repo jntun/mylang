@@ -371,10 +371,9 @@ func (prop PropertyAccess) evaluate(intptr *Interpreter) (Value, error) {
 	}
 	switch reflect.TypeOf(val).String() {
 	case reflect.TypeOf(JlangClassInstance{}).String():
-		// TODO: resolve to class
-		return 0, nil
+		return val.(JlangClassInstance).propertyAccess(prop.identifier)
 	case reflect.TypeOf(JlangClass{}).String():
-		return 1, nil
+		return val.(JlangClass).evaluate(intptr)
 	}
 
 	return nil, BadPropertyAccess{prop.identifier, fmt.Errorf("type '%s' does not implement property access", reflect.TypeOf(val))}
