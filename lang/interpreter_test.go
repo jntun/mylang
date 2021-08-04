@@ -17,24 +17,6 @@ func TestInterpretNumeric(t *testing.T) {
 	}
 }
 
-func TestInterpretWhile(t *testing.T) {
-	if err := genFile("while"); err != nil {
-		t.Error(err)
-	}
-}
-
-func TestInterpretIf(t *testing.T) {
-	if err := genFile("if"); err != nil {
-		t.Error(err)
-	}
-}
-
-func TestInterpretIfElse(t *testing.T) {
-	if err := genFile("ifelse"); err != nil {
-		t.Error(err)
-	}
-}
-
 func TestInterpretComment(t *testing.T) {
 	if err := genFile("comment"); err != nil {
 		t.Error(err)
@@ -55,8 +37,20 @@ func TestInterpretArray(t *testing.T) {
 	}
 }
 
-func TestInterpretClass(t *testing.T) {
-	if err := genFile("class"); err != nil {
+func TestInterpretWhile(t *testing.T) {
+	if err := genFile("while"); err != nil {
+		t.Error(err)
+	}
+}
+
+func TestInterpretIf(t *testing.T) {
+	if err := genFile("if"); err != nil {
+		t.Error(err)
+	}
+}
+
+func TestInterpretIfElse(t *testing.T) {
+	if err := genFile("ifelse"); err != nil {
 		t.Error(err)
 	}
 }
@@ -74,6 +68,13 @@ func TestInterpretFor(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestInterpretClass(t *testing.T) {
+	if err := genFile("class"); err != nil {
+		t.Error(err)
+	}
+}
+
 func genFile(filename string) error {
 	intptr := NewInterpreter()
 	if err := intptr.File("../tests/" + filename + ".jlang"); err != nil {
