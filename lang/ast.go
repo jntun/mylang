@@ -24,7 +24,7 @@ type FunctionDeclarationStatement struct {
 	block      []Statement
 }
 
-type PropertyAssignStatement struct {
+type PropertyAssignmentStatement struct {
 	identifier Token
 	object     Expression
 	value      Expression
