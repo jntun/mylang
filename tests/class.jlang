@@ -17,4 +17,5 @@ class Test {
 
 var test = Test();
 print test;
-//print test.getName();
+print test.id;
+print test.getName();

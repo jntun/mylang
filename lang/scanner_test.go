@@ -70,6 +70,11 @@ func TestScanClass(t *testing.T) {
 		Token{"print", Print, 18},
 		Token{"test", Identifier, 18},
 		Token{";", Semicolon, 18},
+		Token{"print", Print, 19},
+		Token{"test", Identifier, 19},
+		Token{".", Dot, 19},
+		Token{"id", Identifier, 19},
+		Token{";", Semicolon, 19},
 	}
 
 	if matched, got, expect := tokenMatch(t, tokens, expectedTokens); !matched {
