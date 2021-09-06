@@ -8,7 +8,7 @@ type Statement interface {
 	execute(intptr *Interpreter) error
 }
 
-// Program is a the highest level node in a Jlang program AST.
+// Program is the highest level node in a Jlang program AST.
 type Program struct {
 	Statements []Statement
 }
@@ -22,6 +22,11 @@ type FunctionDeclarationStatement struct {
 	Identifier Token
 	args       *[]Token
 	block      []Statement
+}
+
+type PropertyAssignmentStatement struct {
+	get   PropertyAccess
+	value Expression
 }
 
 type ArrayDeclarationStatement struct {
@@ -82,8 +87,8 @@ type Variable struct {
 }
 
 type Call struct {
-	identifer Token
-	args      *[]Expression
+	identifier Token
+	args       *[]Expression
 }
 
 type FunctionCall struct {
@@ -94,6 +99,11 @@ type FunctionCall struct {
 type FunctionInvocation struct {
 	stmt     FunctionDeclarationStatement
 	argExprs *[]Expression
+}
+
+type PropertyAccess struct {
+	Expr       Expression
+	identifier Token
 }
 
 type ArrayAccess struct {

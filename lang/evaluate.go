@@ -301,18 +301,18 @@ func (call Call) evaluate(intptr *Interpreter) (Value, error) {
 	if err == nil {
 		return val, nil
 	}
-	if class, err := intptr.env.classResolve(call.identifer); err == nil {
+	if class, err := intptr.env.classResolve(call.identifier); err == nil {
 		instance, err := class.evaluate(intptr)
 		if err == nil {
 			return instance, nil
 		}
 	}
 
-	return nil, BadCall{call.identifer, err}
+	return nil, BadCall{call.identifier, err}
 }
 
 func (call *Call) asFunctionCall() FunctionCall {
-	return FunctionCall{call.identifer, call.args}
+	return FunctionCall{call.identifier, call.args}
 }
 
 func (fun FunctionCall) evaluate(intptr *Interpreter) (Value, error) {
@@ -362,6 +362,21 @@ func (fun *FunctionInvocation) FillArgs(argExprs *[]Expression) error {
 
 	fun.argExprs = argExprs
 	return nil
+}
+
+func (prop PropertyAccess) evaluate(intptr *Interpreter) (Value, error) {
+	val, err := prop.Expr.evaluate(intptr)
+	if err != nil {
+		return nil, err
+	}
+	switch reflect.TypeOf(val).String() {
+	case reflect.TypeOf(JlangClassInstance{}).String():
+		return val.(JlangClassInstance).propertyAccess(prop.identifier)
+	case reflect.TypeOf(JlangClass{}).String():
+		return val.(JlangClass).evaluate(intptr)
+	}
+
+	return nil, BadPropertyAccess{prop.identifier, fmt.Errorf("type '%s' does not implement property access", reflect.TypeOf(val))}
 }
 
 func (array ArrayAccess) evaluate(intptr *Interpreter) (Value, error) {

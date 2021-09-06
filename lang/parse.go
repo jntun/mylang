@@ -43,6 +43,10 @@ func (p *Parser) statement() (Statement, error) {
 			p.reverse().reverse()
 			return p.assignmentStatement()
 		}
+		if p.match(Dot) {
+			p.reverse().reverse()
+			return p.PropertyAssignmentStatement()
+		}
 	case If:
 		return p.IfStatement()
 	case While:
@@ -63,6 +67,19 @@ func (p *Parser) statement() (Statement, error) {
 	return p.ExpressionStatement()
 }
 
+func (p *Parser) PropertyAssignmentStatement() (Statement, error) {
+	var get, set Expression
+
+	get = p.property()
+	p.consume(Equal, "Want '=' for property assignment.")
+	set = p.expression()
+
+	return PropertyAssignmentStatement{
+		get.(PropertyAccess),
+		set,
+	}, nil
+}
+
 func (p *Parser) ClassDeclaration() (Statement, error) {
 	identifier := p.consume(Identifier, "Want identifier after 'class' keyword.")
 	p.consume(LeftBrace, "Expect '{' after class identifier.")
@@ -80,13 +97,13 @@ func (p *Parser) ClassDeclaration() (Statement, error) {
 			return nil, err
 		}
 		switch reflect.TypeOf(stmt).String() {
-		case "lang.FunctionDeclarationStatement":
+		case reflect.TypeOf(FunctionDeclarationStatement{}).String():
 			funk := stmt.(FunctionDeclarationStatement)
 			if identifier.Lexeme == funk.Identifier.Lexeme {
 				constructor = &funk
 				continue
 			}
-		case "lang.VariableStatement":
+		case reflect.TypeOf(VariableStatement{}).String():
 			varDecl := stmt.(VariableStatement)
 			varDecls = append(varDecls, varDecl)
 			p.consume(Semicolon, fmt.Sprintf("Expect ';' after '%s' member declaration.", varDecl.Identifier.Lexeme))
@@ -251,10 +268,12 @@ func (p *Parser) WhileStatement() (Statement, error) {
 }
 
 func (p *Parser) ForStatement() (Statement, error) {
-	var varStmt Statement
-	var assign Statement
-	var test Expression
-	var err error
+	var (
+		varStmt Statement
+		assign  Statement
+		test    Expression
+		err     error
+	)
 
 	if p.match(Var) {
 		varStmt, err = p.variableStatement()
@@ -367,7 +386,37 @@ func (p *Parser) unary() Expression {
 		return Unary{op, right}
 	}
 
-	return p.primary()
+	return p.call()
+}
+
+func (p *Parser) call() Expression {
+	if p.match(Identifier) {
+		if p.peek().is(LeftParen) {
+			identifier := p.previous()
+			p.consume(LeftParen, fmt.Sprintf("Expected '(' after identifier '%s'.", identifier.Lexeme))
+			args := p.argsExprs(RightParen)
+			p.consume(RightParen, fmt.Sprintf("Expected ')' to close call to '%s'.", identifier.Lexeme))
+			return Call{identifier, &args}
+		}
+		p.reverse()
+	}
+
+	return p.property()
+}
+
+func (p *Parser) property() Expression {
+	expr := p.primary()
+
+	for true {
+		if p.match(Dot) {
+			identifier := p.consume(Identifier, "Expect identifier after '.' for property access.")
+			expr = PropertyAccess{expr, *identifier}
+		} else {
+			break
+		}
+	}
+
+	return expr
 }
 
 func (p *Parser) primary() Expression {
@@ -380,29 +429,16 @@ func (p *Parser) primary() Expression {
 	if p.match(Nil) {
 		return Literal{p.previous()}
 	}
-
 	if p.match(Number, String) {
 		return Literal{p.previous()}
 	}
 	if p.match(Identifier) {
-		if p.peek().is(LeftParen) {
-			identifier := p.previous()
-			var args []Expression
-			p.advance()
-
-			args = p.argsExprs(RightParen)
-
-			p.consume(RightParen, "Want ')' to close call.")
-			call := Call{identifier, &args}
-			return call
-		}
 		if p.peek().is(LeftBracket) {
-			identifer := p.previous()
+			identifier := p.previous()
 			p.advance()
-
 			if index := p.expression(); index != nil {
 				p.consume(RightBracket, "Want ']' to close array index expression.")
-				return ArrayAccess{identifer, index}
+				return ArrayAccess{identifier, index}
 			}
 		}
 		return Variable{p.previous()}

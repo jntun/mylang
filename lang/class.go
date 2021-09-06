@@ -49,10 +49,22 @@ type JlangClassInstance struct {
 	scope Environment
 }
 
+func (this JlangClassInstance) propertyAccess(identifier Token) (Value, error) {
+	var val Value
+	var err error
+
+	if val, err = this.scope.varResolve(Variable{identifier}); err != nil {
+		return nil, err
+	}
+
+	return val, nil
+}
+
 func (this JlangClassInstance) evaluate(intptr *Interpreter) (Value, error) {
 	return 0, nil
 }
 
+/* This should be an assignment context i.e some state is being 'created' or 'stored' */
 func (this JlangClassInstance) execute(intptr *Interpreter) error {
 	return nil
 }

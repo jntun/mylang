@@ -17,8 +17,8 @@ type Interpreter struct {
 }
 
 // Interpret accepts an input string and attempts to execute the given sequence
-// If a fatal error is encountered at any point, the Interpreter will break out and return an error
-// describing the problem
+/* If a fatal error is encountered at any point, the Interpreter will break out and return an error
+   describing the problem */
 func (intptr *Interpreter) Interpret(input string) error {
 	tokens, err := intptr.s.Scan(input)
 	if err != nil {
