@@ -1,5 +1,7 @@
 package lang
 
+import "reflect"
+
 func (program Program) execute(intptr *Interpreter) error {
 	for _, stmt := range program.Statements {
 		err := stmt.execute(intptr)
@@ -32,6 +34,26 @@ func (stmt AssignmentStatement) execute(intptr *Interpreter) error {
 	}
 
 	return stmt.VariableStatement.execute(intptr)
+}
+
+func (stmt PropertyAssignmentStatement) execute(intptr *Interpreter) error {
+	object, err := stmt.get.Expr.evaluate(intptr)
+	if err != nil {
+		return err
+	}
+
+	// This is a switch so it can be expanded easily in the future
+	switch reflect.TypeOf(object).String() {
+	case reflect.TypeOf(JlangClassInstance{}).String():
+		break
+	default:
+		return BadPropertyAssignmentType{stmt.get.identifier, reflect.TypeOf(object).String()}
+	}
+
+	return object.(JlangClassInstance).updateMember(intptr, VariableStatement{
+		Identifier: stmt.get.identifier,
+		Expr:       stmt.value,
+	})
 }
 
 func (stmt IfStatement) execute(intptr *Interpreter) error {
