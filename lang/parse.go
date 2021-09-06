@@ -412,11 +412,19 @@ func (p *Parser) call() Expression {
 		p.reverse()
 	}
 
+	return p.property()
+}
+
+func (p *Parser) property() Expression {
 	expr := p.primary()
 
-	if p.match(Dot) {
-		identifier := p.consume(Identifier, "Expect identifier after '.' for property access.")
-		return PropertyAccess{expr, *identifier}
+	for true {
+		if p.match(Dot) {
+			identifier := p.consume(Identifier, "Expect identifier after '.' for property access.")
+			expr = PropertyAccess{expr, *identifier}
+		} else {
+			break
+		}
 	}
 
 	return expr
