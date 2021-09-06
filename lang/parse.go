@@ -43,6 +43,10 @@ func (p *Parser) statement() (Statement, error) {
 			p.reverse().reverse()
 			return p.assignmentStatement()
 		}
+		if p.match(Dot) {
+			p.reverse().reverse()
+			return p.PropertyAssignmentStatement()
+		}
 	case If:
 		return p.IfStatement()
 	case While:
@@ -61,6 +65,32 @@ func (p *Parser) statement() (Statement, error) {
 	p.reverse()
 
 	return p.ExpressionStatement()
+}
+
+func (p *Parser) PropertyAssignmentStatement() (Statement, error) {
+	var (
+		get        Expression
+		assign     Expression
+		set        Statement
+		identifier *Token
+	)
+	for true {
+		identifier = p.consume(Identifier, "Want identifier for property assignment.")
+		if p.match(Dot) {
+			get = PropertyAccess{get, *identifier}
+		} else if p.peek().is(Equal) {
+			p.consume(Equal, "Want '=' for property assignment.")
+			assign = p.expression()
+			set = PropertyAssignmentStatement{
+				*identifier,
+				get,
+				assign,
+			}
+			return set, nil
+		}
+	}
+
+	return nil, ParseError{p.src[p.current], "Invalid property assignment."}
 }
 
 func (p *Parser) ClassDeclaration() (Statement, error) {
