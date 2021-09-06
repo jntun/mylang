@@ -1,0 +1,8 @@
+class Test {
+    var x = 1;
+}
+
+var foo = Test();
+
+foo.x = 2;
+print foo.x;

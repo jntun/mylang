@@ -1,0 +1,19 @@
+class Base {
+    var id = 1;
+}
+
+class Extend {
+    var id = 2;
+    var base = Base();
+
+    func test() {
+        return "hello";
+    }
+}
+
+var x = Extend;
+var test = x();
+print test.id;
+print test.base;
+print test.base.id;
+print test.test();
