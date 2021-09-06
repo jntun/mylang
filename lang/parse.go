@@ -281,10 +281,12 @@ func (p *Parser) WhileStatement() (Statement, error) {
 }
 
 func (p *Parser) ForStatement() (Statement, error) {
-	var varStmt Statement
-	var assign Statement
-	var test Expression
-	var err error
+	var (
+		varStmt Statement
+		assign  Statement
+		test    Expression
+		err     error
+	)
 
 	if p.match(Var) {
 		varStmt, err = p.variableStatement()
@@ -440,16 +442,13 @@ func (p *Parser) primary() Expression {
 	if p.match(Nil) {
 		return Literal{p.previous()}
 	}
-
 	if p.match(Number, String) {
 		return Literal{p.previous()}
 	}
 	if p.match(Identifier) {
-
 		if p.peek().is(LeftBracket) {
 			identifier := p.previous()
 			p.advance()
-
 			if index := p.expression(); index != nil {
 				p.consume(RightBracket, "Want ']' to close array index expression.")
 				return ArrayAccess{identifier, index}
