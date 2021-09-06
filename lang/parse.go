@@ -21,11 +21,10 @@ func (p *Parser) Parse(tokens []Token) (*Program, error) {
 	statements := make([]Statement, 0)
 	for !p.isAtEnd() {
 		stmt, err := p.statement()
+		p.consume(Semicolon, "Want ';' to close statement.")
 		if err != nil {
 			return nil, err
 		}
-		p.consume(Semicolon, "Want ';' to close statement.")
-
 		statements = append(statements, stmt)
 	}
 
@@ -172,6 +171,7 @@ func (p *Parser) blockStatement(stmtType string) ([]Statement, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		p.consume(Semicolon, "Want ';' in block statement.")
 		block = append(block, stmt)
 		if p.isAtEnd() {
@@ -548,6 +548,7 @@ func (p *Parser) isAtEnd() bool {
 func (p *Parser) hadError(token Token, msg string) ParseError {
 	err := ParseError{token, msg}
 	p.Errors = append(p.Errors, err)
+	p.error = err
 	//RuntimeError(err)
 	return err
 }
