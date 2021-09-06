@@ -68,29 +68,16 @@ func (p *Parser) statement() (Statement, error) {
 }
 
 func (p *Parser) PropertyAssignmentStatement() (Statement, error) {
-	var (
-		get        Expression
-		assign     Expression
-		set        Statement
-		identifier *Token
-	)
-	for true {
-		identifier = p.consume(Identifier, "Want identifier for property assignment.")
-		if p.match(Dot) {
-			get = PropertyAccess{get, *identifier}
-		} else if p.peek().is(Equal) {
-			p.consume(Equal, "Want '=' for property assignment.")
-			assign = p.expression()
-			set = PropertyAssignmentStatement{
-				*identifier,
-				get,
-				assign,
-			}
-			return set, nil
-		}
-	}
+	var get, set Expression
 
-	return nil, ParseError{p.src[p.current], "Invalid property assignment."}
+	get = p.property()
+	p.consume(Equal, "Want '=' for property assignment.")
+	set = p.expression()
+
+	return PropertyAssignmentStatement{
+		get.(PropertyAccess),
+		set,
+	}, nil
 }
 
 func (p *Parser) ClassDeclaration() (Statement, error) {

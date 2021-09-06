@@ -6,6 +6,15 @@ import (
 	"strings"
 )
 
+type BadPropertyAssignmentType struct {
+	identifier Token
+	tipe       string
+}
+
+func (err BadPropertyAssignmentType) Error() string {
+	return fmt.Sprintf("Type '%s' does not implement property assignment on assigning member '%s'.", err.tipe, err.identifier.Lexeme)
+}
+
 type BadPropertyAccess struct {
 	propId Token
 	reason error

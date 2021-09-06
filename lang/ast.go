@@ -25,9 +25,8 @@ type FunctionDeclarationStatement struct {
 }
 
 type PropertyAssignmentStatement struct {
-	identifier Token
-	object     Expression
-	value      Expression
+	get   PropertyAccess
+	value Expression
 }
 
 type ArrayDeclarationStatement struct {
