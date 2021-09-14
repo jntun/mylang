@@ -317,12 +317,11 @@ func (call *Call) asFunctionCall() FunctionCall {
 
 func (fun FunctionCall) evaluate(intptr *Interpreter) (Value, error) {
 	intptr.env.push(fmt.Sprintf("%s@%d", fun.identifier.Lexeme, fun.identifier.Line))
+	defer intptr.env.pop()
 	return intptr.FunctionResolve(fun)
 }
 
 func (fun FunctionInvocation) evaluate(intptr *Interpreter) (Value, error) {
-	defer intptr.env.pop()
-
 	// If we have args, map them to the interpreter environment
 	if fun.argExprs != nil {
 		if len(*fun.argExprs) != len(*fun.stmt.args) {
