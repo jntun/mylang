@@ -1,6 +1,8 @@
 package lang
 
-import "reflect"
+import (
+	"reflect"
+)
 
 func (program Program) execute(intptr *Interpreter) error {
 	for _, stmt := range program.Statements {
@@ -137,6 +139,9 @@ func (stmt WhileStatement) execute(intptr *Interpreter) error {
 }
 
 func (stmt ForStatement) execute(intptr *Interpreter) error {
+	intptr.env.push("for-stmt")
+	defer intptr.env.pop()
+
 	if stmt.varStmt != nil {
 		err := stmt.varStmt.execute(intptr)
 		if err != nil {
