@@ -12,15 +12,13 @@ type Environment struct {
 
 type Block struct {
 	id    string
-	store store
+	store interface {
+		query(id string) (interface{}, bool)
+	}
 }
 
 type varMap map[string]*Value
 type funcMap map[string]FunctionInvocation
-
-type store interface {
-	query(id string) (interface{}, bool)
-}
 
 func (vars varMap) query(id string) (interface{}, bool) {
 	val, found := vars[id]
