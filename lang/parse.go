@@ -410,6 +410,16 @@ func (p *Parser) property() Expression {
 	for true {
 		if p.match(Dot) {
 			identifier := p.consume(Identifier, "Expect identifier after '.' for property access.")
+			if p.match(LeftParen) {
+				args := p.argsExprs(RightParen)
+				p.consume(RightParen, "Expect ')' to close method call.")
+				expr = MethodInvocation{
+					this:       expr,
+					identifier: *identifier,
+					argExprs:   &args,
+				}
+				continue
+			}
 			expr = PropertyAccess{expr, *identifier}
 		} else {
 			break
