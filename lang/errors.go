@@ -6,6 +6,15 @@ import (
 	"strings"
 )
 
+type BadMethodInvocation struct {
+	identifier Token
+	subject    error
+}
+
+func (err BadMethodInvocation) Error() string {
+	return fmt.Sprintf("Bad invocation of '%s':\n\treason: %s", err.identifier.Lexeme, err.subject)
+}
+
 type BadPropertyAssignmentType struct {
 	identifier Token
 	tipe       string
