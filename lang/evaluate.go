@@ -363,6 +363,22 @@ func (fun *FunctionInvocation) FillArgs(argExprs *[]Expression) error {
 	return nil
 }
 
+func (method MethodInvocation) evaluate(intptr *Interpreter) (Value, error) {
+	object, err := method.this.evaluate(intptr)
+	if err != nil {
+		return nil, err
+	}
+
+	if tipe := reflect.TypeOf(object); tipe != reflect.TypeOf(JlangClassInstance{}) {
+		return nil, BadMethodInvocation{method.identifier, fmt.Errorf("type '%s' does not implement method invocation.", tipe.String())}
+	}
+
+	return object.(JlangClassInstance).invoke(intptr, FunctionCall{
+		identifier: method.identifier,
+		args:       method.argExprs,
+	})
+}
+
 func (prop PropertyAccess) evaluate(intptr *Interpreter) (Value, error) {
 	val, err := prop.Expr.evaluate(intptr)
 	if err != nil {
