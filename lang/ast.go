@@ -101,6 +101,12 @@ type FunctionInvocation struct {
 	argExprs *[]Expression
 }
 
+type MethodInvocation struct {
+	this       Expression
+	identifier Token
+	argExprs   *[]Expression
+}
+
 type PropertyAccess struct {
 	Expr       Expression
 	identifier Token
