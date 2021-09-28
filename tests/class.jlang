@@ -8,14 +8,18 @@ class Test {
     }
 
     func getName() {
-        //return this.name + "-" + this.id;
-        return "hello world!";
+        return this.name + "-" + this.id;
     }
 
-    func nothing(x, y) {}
+    func setName(name) {
+        print "setting name to: " + name;
+        this.name = name;
+    }
 }
 
 var test = Test();
 print test;
 print test.id;
+print test.getName();
+test.setName("PauseChamp");
 print test.getName();
