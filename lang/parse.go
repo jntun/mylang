@@ -70,6 +70,9 @@ func (p *Parser) PropertyAssignmentStatement() (Statement, error) {
 	var get, set Expression
 
 	get = p.property()
+	if reflect.TypeOf(get) == reflect.TypeOf(MethodInvocation{}) {
+		return ExpressionStatement{get}, nil
+	}
 	p.consume(Equal, "Want '=' for property assignment.")
 	set = p.expression()
 
