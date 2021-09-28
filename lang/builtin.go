@@ -71,8 +71,7 @@ type Quit struct{}
 
 func (q Quit) evaluate(intptr *Interpreter) (Value, error) {
 	os.Exit(0)
-	// Unreachable
-	return nil, nil
+	return nil, nil // Unreachable
 }
 
 func globals() []Statement {
