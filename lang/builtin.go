@@ -3,6 +3,7 @@ package lang
 import (
 	"fmt"
 	"math"
+	"os"
 	"reflect"
 	"time"
 )
@@ -66,6 +67,14 @@ func (p Pow) evaluate(intptr *Interpreter) (Value, error) {
 	return nil, fmt.Errorf("invalid type '%s' in 'pow' call", reflect.TypeOf(x).Kind())
 }
 
+type Quit struct{}
+
+func (q Quit) evaluate(intptr *Interpreter) (Value, error) {
+	os.Exit(0)
+	// Unreachable
+	return nil, nil
+}
+
 func globals() []Statement {
 	globals := make([]Statement, 0)
 
@@ -79,6 +88,9 @@ func globals() []Statement {
 	}))
 	globals = append(globals, makeBuiltinFunc("pow", []string{"x", "y"}, []Statement{
 		ReturnStatement{Pow{}, nil},
+	}))
+	globals = append(globals, makeBuiltinFunc("quit", []string{}, []Statement{
+		ReturnStatement{Quit{}, nil},
 	}))
 
 	return globals
