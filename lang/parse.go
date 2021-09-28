@@ -102,6 +102,7 @@ func (p *Parser) ClassDeclaration() (Statement, error) {
 				constructor = &funk
 				continue
 			}
+			funcDecls = append(funcDecls, funk)
 		case reflect.TypeOf(VariableStatement{}).String():
 			varDecl := stmt.(VariableStatement)
 			varDecls = append(varDecls, varDecl)
