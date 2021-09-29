@@ -115,8 +115,22 @@ func (p *Parser) ClassDeclaration() (Statement, error) {
 		}
 	}
 
-	if len(funcDecls) == 0 {
-		funcDecls = nil
+	for i, _ := range funcDecls {
+		funk := &funcDecls[i] // This is weird but only way I could get a nil funk.args to set a new address (line 129)
+		if funk.args != nil {
+			*funk.args = append([]Token{Token{
+				Lexeme: "this",
+				Type:   This,
+				Line:   funk.Identifier.Line,
+			}}, *funk.args...)
+		} else {
+			args := append(make([]Token, 0), Token{
+				Lexeme: "this",
+				Type:   This,
+				Line:   funk.Identifier.Line,
+			})
+			funk.args = &args
+		}
 	}
 	if len(varDecls) == 0 {
 		varDecls = nil
