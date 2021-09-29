@@ -12,7 +12,7 @@ type BadMethodInvocation struct {
 }
 
 func (err BadMethodInvocation) Error() string {
-	return fmt.Sprintf("Bad invocation of '%s':\n\treason: %s", err.identifier.Lexeme, err.subject)
+	return fmt.Sprintf("Bad invocation of '%s':\n\tmore: %s", err.identifier.Lexeme, err.subject)
 }
 
 type BadPropertyAssignmentType struct {
