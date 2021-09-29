@@ -59,6 +59,8 @@ func (p *Parser) statement() (Statement, error) {
 	case Return:
 		if expr := p.expression(); expr != nil {
 			return ReturnStatement{expr, nil}, nil
+		} else if p.peek().is(Semicolon) {
+			return ReturnStatement{Literal{Token{"retnil", Nil, token.Line}}, nil}, nil
 		}
 	}
 	p.reverse()
