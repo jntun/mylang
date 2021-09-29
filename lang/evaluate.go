@@ -351,16 +351,15 @@ func (fun FunctionInvocation) evaluate(intptr *Interpreter) (Value, error) {
 	return nil, nil
 }
 
-func (fun *FunctionInvocation) FillArgs(argExprs *[]Expression) error {
+func (fun *FunctionInvocation) FillArgs(argExprs *[]Expression) {
 	if argExprs == nil {
-		return nil
+		return
 	}
 	if len(*argExprs) == 0 {
-		return nil
+		return
 	}
 
 	fun.argExprs = argExprs
-	return nil
 }
 
 func (method MethodInvocation) evaluate(intptr *Interpreter) (Value, error) {
