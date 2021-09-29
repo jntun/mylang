@@ -32,7 +32,7 @@ func (p *Parser) Parse(tokens []Token) (*Program, error) {
 }
 
 func (p *Parser) statement() (Statement, error) {
-	switch p.advance().Type {
+	switch token := p.advance(); token.Type {
 	case Print:
 		return p.PrintStatement()
 	case Var:
