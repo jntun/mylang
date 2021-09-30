@@ -120,17 +120,9 @@ func (p *Parser) ClassDeclaration() (Statement, error) {
 	for i, _ := range funcDecls {
 		funk := &funcDecls[i] // This is weird but only way I could get a nil funk.args to set a new address (line 129)
 		if funk.args != nil {
-			*funk.args = append([]Token{Token{
-				Lexeme: "this",
-				Type:   This,
-				Line:   funk.Identifier.Line,
-			}}, *funk.args...)
+			*funk.args = append([]Token{thisToken(funk.Identifier.Line)}, *funk.args...)
 		} else {
-			args := append(make([]Token, 0), Token{
-				Lexeme: "this",
-				Type:   This,
-				Line:   funk.Identifier.Line,
-			})
+			args := append(make([]Token, 0), thisToken(funk.Identifier.Line))
 			funk.args = &args
 		}
 	}
@@ -586,4 +578,12 @@ func (p *Parser) hadError(token Token, msg string) ParseError {
 func (p *Parser) flush() {
 	p.current = 0
 	p.Errors = make([]error, 0)
+}
+
+func thisToken(line uint) Token {
+	return Token{
+		Lexeme: "this",
+		Type:   This,
+		Line:   line,
+	}
 }
