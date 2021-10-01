@@ -302,9 +302,13 @@ func (call Call) evaluate(intptr *Interpreter) (Value, error) {
 		return val, nil
 	}
 	if class, err := intptr.env.classResolve(call.identifier); err == nil {
-		instance, err := class.evaluate(intptr)
-		if err == nil {
+		if class.constructor != nil {
+			class.constructor.argExprs = call.args
+		}
+		if instance, err := class.evaluate(intptr); err == nil {
 			return instance, nil
+		} else {
+			return nil, err
 		}
 	}
 

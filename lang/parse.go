@@ -105,6 +105,10 @@ func (p *Parser) ClassDeclaration() (Statement, error) {
 			funk := stmt.(FunctionDeclarationStatement)
 			if identifier.Lexeme == funk.Identifier.Lexeme {
 				constructor = &funk
+				if constructor.args != nil {
+					args := append([]Token{thisToken(constructor.Identifier.Line)}, *constructor.args...)
+					constructor.args = &args
+				}
 				continue
 			}
 			funcDecls = append(funcDecls, funk)
@@ -132,6 +136,7 @@ func (p *Parser) ClassDeclaration() (Statement, error) {
 
 	return JlangClass{
 		*identifier,
+		nil,
 		struct {
 			constructor *FunctionDeclarationStatement
 			varDecls    *[]VariableStatement

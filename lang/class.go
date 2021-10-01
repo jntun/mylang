@@ -3,8 +3,9 @@ package lang
 import "fmt"
 
 type JlangClass struct {
-	identifier Token
-	Stmt       struct {
+	identifier  Token
+	constructor *FunctionInvocation
+	Stmt        struct {
 		constructor *FunctionDeclarationStatement
 		varDecls    *[]VariableStatement
 		funcDecls   *[]FunctionDeclarationStatement
@@ -17,9 +18,6 @@ func (class JlangClass) evaluate(intptr *Interpreter) (Value, error) {
 	scope := NewEnvironment(class.identifier.Lexeme)
 	instance := JlangClassInstance{&class, scope}
 
-	if class.Stmt.constructor != nil {
-		// TODO: implement constructor execution
-	}
 	if varDecls := class.Stmt.varDecls; varDecls != nil {
 		for _, varDecl := range *varDecls {
 			err := instance.updateMember(intptr, varDecl)
@@ -33,6 +31,16 @@ func (class JlangClass) evaluate(intptr *Interpreter) (Value, error) {
 			instance.storeFunc(funcDecl)
 		}
 	}
+	if constructor := class.constructor; constructor != nil {
+		args := []Expression{instance}
+		if constructor.argExprs != nil {
+			args = append(args, *constructor.argExprs...)
+		}
+		constructor.FillArgs(&args)
+		if _, err := constructor.evaluate(intptr); err != nil {
+			return nil, err
+		}
+	}
 
 	return instance, nil
 }
@@ -41,6 +49,9 @@ func (class JlangClass) evaluate(intptr *Interpreter) (Value, error) {
 // This is when the class 'type' gets put into the interpreter's
 // environment to reference in the future i.e 'evaluate()'.
 func (class JlangClass) execute(intptr *Interpreter) error {
+	if class.Stmt.constructor != nil {
+		class.constructor = &FunctionInvocation{*class.Stmt.constructor, nil}
+	}
 	intptr.env.classStore(class)
 	return nil
 }
