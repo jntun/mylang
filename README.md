@@ -31,12 +31,12 @@ print vector[0];
 
 ```go
 class Rectangle {
-	var x;
-	var y;
+    var x;
+    var y;
 	
-	func Rectangle(x, y) {
-	    this.x = x;
-	    this.y = y;
+    func Rectangle(x, y) {
+        this.x = x;
+        this.y = y;
     }
     
     func area() {
@@ -45,7 +45,7 @@ class Rectangle {
     
     func Print() {
     	print "x: " + this.x;
-		print "y: " + this.y;
+        print "y: " + this.y;
     }
 }
 
