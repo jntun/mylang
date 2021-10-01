@@ -81,6 +81,18 @@ func TestPropertyAssignment(t *testing.T) {
 	}
 }
 
+func TestInterpretConstructor(t *testing.T) {
+	if err := genFile("constructor"); err != nil {
+		t.Error(err)
+	}
+}
+
+func TestInterpretRectangle(t *testing.T) {
+	if err := genFile("rect_class"); err != nil {
+		t.Error(err)
+	}
+}
+
 func genFile(filename string) error {
 	intptr := NewInterpreter()
 	if err := intptr.File("../tests/" + filename + ".jlang"); err != nil {
