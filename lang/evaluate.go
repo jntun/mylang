@@ -323,7 +323,7 @@ func (fun FunctionCall) evaluate(intptr *Interpreter) (Value, error) {
 
 func (fun FunctionInvocation) evaluate(intptr *Interpreter) (Value, error) {
 	// If we have args, map them to the interpreter environment
-	if fun.argExprs != nil {
+	if fun.argExprs != nil && fun.stmt.args != nil {
 		if len(*fun.argExprs) != len(*fun.stmt.args) {
 			return nil, ArgumentMismatch{fun.stmt.Identifier, uint(len(*fun.stmt.args)), uint(len(*fun.argExprs))}
 		}
