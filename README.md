@@ -27,6 +27,33 @@ var vector = [1.0, 1.0, 1.0];
 print vector[0];
 ```
 
+<h3>Class</h3>
+
+```go
+class Rectangle {
+	var x;
+	var y;
+	
+	func Rectangle(x, y) {
+	    this.x = x;
+	    this.y = y;
+    }
+    
+    func area() {
+    	return this.x * this.y;
+    }
+    
+    func Print() {
+    	print "x: " + this.x;
+		print "y: " + this.y;
+    }
+}
+
+var rect = Rectangle(5, 5);
+rect.Print();
+print rect.area();
+```
+
 <h2>Statements</h2>
 
 <h3>For</h3>
@@ -55,6 +82,7 @@ while x < 50 {
     x = x + 1;
 }
 ```
+
 
 <p>
 
