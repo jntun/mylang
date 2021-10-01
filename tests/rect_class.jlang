@@ -1,0 +1,30 @@
+class Rect {
+    var x;
+    var y;
+    
+    func Rect(x, y) {
+        this.Set(x, y);
+    }
+    
+    func Area() {
+        return this.x * this.y;
+    }
+    
+    func Set(x, y) {
+        this.x = x; this.y = y;
+    }
+    
+    func Print() {
+        if this.x == nil { return; }
+        if this.y == nil { return; }
+        
+        print "x: " + this.x;
+        print "y: " + this.y;
+    }
+}
+
+var rect = Rect(1, 2);
+rect.Print();
+rect.x = 100;
+rect.y = 200;
+rect.Print();

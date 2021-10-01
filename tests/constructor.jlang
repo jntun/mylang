@@ -1,0 +1,11 @@
+class Rect {
+    var x = 0;
+    var y = 0;
+
+    func Rect(x, y) {
+        this.x = x; this.y = y;
+    }
+}
+
+var rect = Rect(5, 5);
+print rect.x + ":" + rect.y;
