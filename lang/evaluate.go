@@ -328,8 +328,8 @@ func (fun FunctionCall) evaluate(intptr *Interpreter) (Value, error) {
 func (fun FunctionInvocation) evaluate(intptr *Interpreter) (Value, error) {
 	// If we have args, map them to the interpreter environment
 	if fun.argExprs != nil && fun.stmt.args != nil {
-		if len(*fun.argExprs) != len(*fun.stmt.args) {
-			return nil, ArgumentMismatch{fun.stmt.Identifier, uint(len(*fun.stmt.args)), uint(len(*fun.argExprs))}
+		if fun.arity != fun.stmt.arity {
+			return nil, ArgumentMismatch{fun.stmt.Identifier, fun.stmt.arity, fun.arity}
 		}
 		for i, expr := range *fun.argExprs {
 			ids := *fun.stmt.args
@@ -352,6 +352,7 @@ func (fun FunctionInvocation) evaluate(intptr *Interpreter) (Value, error) {
 		return val, nil
 	}
 
+	fun.arity = 0
 	return nil, nil
 }
 

@@ -82,6 +82,7 @@ func (intptr *Interpreter) FunctionMap(stmt FunctionDeclarationStatement) {
 func (intptr *Interpreter) FunctionResolve(caller FunctionCall) (Value, error) {
 	if fun, found := intptr.env.funcResolve(caller); found == true {
 		fun.FillArgs(caller.args)
+		fun.arity = uint(len(*caller.args))
 
 		val, err := fun.evaluate(intptr)
 		if err != nil {

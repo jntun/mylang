@@ -35,6 +35,7 @@ func (class JlangClass) evaluate(intptr *Interpreter) (Value, error) {
 		args := []Expression{instance}
 		if constructor.argExprs != nil {
 			args = append(args, *constructor.argExprs...)
+			constructor.arity = uint(len(*constructor.argExprs))
 		}
 		constructor.FillArgs(&args)
 		if _, err := constructor.evaluate(intptr); err != nil {
@@ -50,7 +51,7 @@ func (class JlangClass) evaluate(intptr *Interpreter) (Value, error) {
 // environment to reference in the future i.e 'evaluate()'.
 func (class JlangClass) execute(intptr *Interpreter) error {
 	if class.Stmt.constructor != nil {
-		class.constructor = &FunctionInvocation{*class.Stmt.constructor, nil}
+		class.constructor = &FunctionInvocation{*class.Stmt.constructor, nil, 0}
 	}
 	intptr.env.classStore(class)
 	return nil
@@ -66,6 +67,7 @@ func (this JlangClassInstance) invoke(intptr *Interpreter, call FunctionCall) (V
 	defer intptr.env.pop()
 
 	if funk, found := this.scope.funcResolve(call); found {
+		funk.arity = uint(len(*call.args))
 		args := append([]Expression{this}, *call.args...)
 		funk.FillArgs(&args)
 		return funk.evaluate(intptr)
