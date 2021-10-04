@@ -171,10 +171,10 @@ func (p *Parser) FunctionDeclaration() (Statement, error) {
 	}
 
 	if len(args) == 0 {
-		return FunctionDeclarationStatement{*identifier, nil, block}, nil
+		return FunctionDeclarationStatement{*identifier, nil, 0, block}, nil
 	}
 
-	return FunctionDeclarationStatement{*identifier, &args, block}, nil
+	return FunctionDeclarationStatement{*identifier, &args, uint(len(args)), block}, nil
 }
 
 func (p *Parser) blockStatement(stmtType string) ([]Statement, error) {

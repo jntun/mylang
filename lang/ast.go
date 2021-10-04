@@ -21,6 +21,7 @@ type VariableStatement struct {
 type FunctionDeclarationStatement struct {
 	Identifier Token
 	args       *[]Token
+	arity      uint
 	block      []Statement
 }
 

@@ -101,5 +101,5 @@ func makeBuiltinFunc(identifier string, args []string, block []Statement) Functi
 		tokenArgs[i] = Token{arg, Identifier, 0}
 	}
 
-	return FunctionDeclarationStatement{Token{identifier, Identifier, 0}, &tokenArgs, block}
+	return FunctionDeclarationStatement{Token{identifier, Identifier, 0}, &tokenArgs, uint(len(args)), block}
 }
