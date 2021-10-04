@@ -100,6 +100,7 @@ type FunctionCall struct {
 type FunctionInvocation struct {
 	stmt     FunctionDeclarationStatement
 	argExprs *[]Expression
+	arity    uint
 }
 
 type MethodInvocation struct {

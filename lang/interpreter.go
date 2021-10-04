@@ -76,7 +76,7 @@ func (intptr *Interpreter) VariableResolver(variable Variable) (Value, error) {
 // FunctionMap assumes the parser has *correctly* parsed a
 // FunctionDeclarationStatement and is now ready to be breathed life into from the interpreter.
 func (intptr *Interpreter) FunctionMap(stmt FunctionDeclarationStatement) {
-	intptr.env.funcStore(FunctionInvocation{stmt, nil})
+	intptr.env.funcStore(FunctionInvocation{stmt, nil, 0})
 }
 
 func (intptr *Interpreter) FunctionResolve(caller FunctionCall) (Value, error) {

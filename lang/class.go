@@ -111,6 +111,6 @@ func (this JlangClassInstance) updateMember(intptr *Interpreter, vari VariableSt
 }
 
 func (this *JlangClassInstance) storeFunc(fun FunctionDeclarationStatement) {
-	funInv := FunctionInvocation{fun, nil}
+	funInv := FunctionInvocation{fun, nil, 0}
 	this.scope.funcStore(funInv)
 }
