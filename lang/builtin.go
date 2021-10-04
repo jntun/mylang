@@ -74,6 +74,26 @@ func (q Quit) evaluate(intptr *Interpreter) (Value, error) {
 	return nil, nil // Unreachable
 }
 
+type AppendBuiltin struct{}
+
+func (app AppendBuiltin) evaluate(intptr *Interpreter) (Value, error) {
+	var arr interface{}
+	s, err := intptr.VariableResolver(Variable{Token{"s", Identifier, 0}})
+	if err != nil {
+		return nil, err
+	}
+	if kind := reflect.TypeOf(s).Kind(); kind != reflect.Slice {
+		return nil, fmt.Errorf("type '%s' is not appendable", kind)
+	}
+	v, err := intptr.VariableResolver(Variable{Token{"v", Identifier, 0}})
+	if err != nil {
+		return nil, err
+	}
+	arr = append(s.([]*Value), &v)
+
+	return arr, nil
+}
+
 func globals() []Statement {
 	globals := make([]Statement, 0)
 
@@ -90,6 +110,9 @@ func globals() []Statement {
 	}))
 	globals = append(globals, makeBuiltinFunc("quit", []string{}, []Statement{
 		ReturnStatement{Quit{}, nil},
+	}))
+	globals = append(globals, makeBuiltinFunc("append", []string{"s", "v"}, []Statement{
+		ReturnStatement{AppendBuiltin{}, nil},
 	}))
 
 	return globals
