@@ -100,8 +100,8 @@ func (p *Parser) ClassDeclaration() (Statement, error) {
 		if err != nil {
 			return nil, err
 		}
-		switch reflect.TypeOf(stmt).String() {
-		case reflect.TypeOf(FunctionDeclarationStatement{}).String():
+		switch reflect.TypeOf(stmt) {
+		case reflect.TypeOf(FunctionDeclarationStatement{}):
 			funk := stmt.(FunctionDeclarationStatement)
 			if identifier.Lexeme == funk.Identifier.Lexeme {
 				constructor = &funk
@@ -112,7 +112,7 @@ func (p *Parser) ClassDeclaration() (Statement, error) {
 				continue
 			}
 			funcDecls = append(funcDecls, funk)
-		case reflect.TypeOf(VariableStatement{}).String():
+		case reflect.TypeOf(VariableStatement{}):
 			varDecl := stmt.(VariableStatement)
 			varDecls = append(varDecls, varDecl)
 			p.consume(Semicolon, fmt.Sprintf("Expect ';' after '%s' member declaration.", varDecl.Identifier.Lexeme))
