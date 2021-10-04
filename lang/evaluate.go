@@ -326,14 +326,14 @@ func (fun FunctionCall) evaluate(intptr *Interpreter) (Value, error) {
 }
 
 func (fun FunctionInvocation) evaluate(intptr *Interpreter) (Value, error) {
-	// If we have args, map them to the interpreter environment
-	if fun.argExprs != nil && fun.stmt.args != nil {
-		if fun.arity != fun.stmt.arity {
-			return nil, ArgumentMismatch{fun.stmt.Identifier, fun.stmt.arity, fun.arity}
-		}
-		for i, expr := range *fun.argExprs {
-			ids := *fun.stmt.args
-			intptr.VariableMap(VariableStatement{ids[i], expr})
+	if fun.arity != fun.stmt.arity {
+		return nil, ArgumentMismatch{fun.stmt.Identifier, fun.stmt.arity, fun.arity}
+	}
+
+	if fun.stmt.arity != 0 || fun.stmt.args != nil {
+		// If we have args, map them to the interpreter environment
+		for i, expr := range *fun.argExprs { // We can assume this is a safe dereference due to the arity check
+			intptr.VariableMap(VariableStatement{(*fun.stmt.args)[i], expr})
 		}
 	}
 
