@@ -330,7 +330,7 @@ func (fun FunctionInvocation) evaluate(intptr *Interpreter) (Value, error) {
 		return nil, ArgumentMismatch{fun.stmt.Identifier, fun.stmt.arity, fun.arity}
 	}
 
-	if fun.stmt.arity != 0 || fun.stmt.args != nil {
+	if fun.stmt.arity != 0 || (fun.stmt.args != nil && *fun.stmt.args != nil) {
 		// If we have args, map them to the interpreter environment
 		for i, expr := range *fun.argExprs { // We can assume this is a safe dereference due to the arity check
 			intptr.VariableMap(VariableStatement{(*fun.stmt.args)[i], expr})
