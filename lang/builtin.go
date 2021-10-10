@@ -94,6 +94,16 @@ func (app AppendBuiltin) evaluate(intptr *Interpreter) (Value, error) {
 	return arr, nil
 }
 
+type Locals struct{}
+
+func (locals Locals) evaluate(intptr *Interpreter) (Value, error) {
+	if len(intptr.env.vars)-2 >= 0 {
+		prevStack := intptr.env.vars[len(intptr.env.vars)-2]
+		intptr.writeLog.Printf(prevStack.String())
+	}
+	return nil, nil
+}
+
 func globals() []Statement {
 	globals := make([]Statement, 0)
 
@@ -113,6 +123,9 @@ func globals() []Statement {
 	}))
 	globals = append(globals, makeBuiltinFunc("append", []string{"s", "v"}, []Statement{
 		ReturnStatement{AppendBuiltin{}, nil},
+	}))
+	globals = append(globals, makeBuiltinFunc("locals", nil, []Statement{
+		ReturnStatement{Locals{}, nil},
 	}))
 
 	return globals
