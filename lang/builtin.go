@@ -102,13 +102,13 @@ func globals() []Statement {
 	globals = append(globals, makeBuiltinFunc("len", []string{"v"}, []Statement{
 		ReturnStatement{Len{}, nil},
 	}))
-	globals = append(globals, makeBuiltinFunc("time", []string{}, []Statement{
+	globals = append(globals, makeBuiltinFunc("time", nil, []Statement{
 		ReturnStatement{Time{}, nil},
 	}))
 	globals = append(globals, makeBuiltinFunc("pow", []string{"x", "y"}, []Statement{
 		ReturnStatement{Pow{}, nil},
 	}))
-	globals = append(globals, makeBuiltinFunc("quit", []string{}, []Statement{
+	globals = append(globals, makeBuiltinFunc("quit", nil, []Statement{
 		ReturnStatement{Quit{}, nil},
 	}))
 	globals = append(globals, makeBuiltinFunc("append", []string{"s", "v"}, []Statement{
@@ -119,9 +119,12 @@ func globals() []Statement {
 }
 
 func makeBuiltinFunc(identifier string, args []string, block []Statement) FunctionDeclarationStatement {
-	tokenArgs := make([]Token, len(args))
-	for i, arg := range args {
-		tokenArgs[i] = Token{arg, Identifier, 0}
+	var tokenArgs []Token = nil
+	if args != nil {
+		tokenArgs = make([]Token, len(args))
+		for i, arg := range args {
+			tokenArgs[i] = Token{arg, Identifier, 0}
+		}
 	}
 
 	return FunctionDeclarationStatement{Token{identifier, Identifier, 0}, &tokenArgs, uint(len(args)), block}
