@@ -14,6 +14,7 @@ type Block struct {
 	id    string
 	store interface {
 		query(id string) (interface{}, bool)
+		fmt.Stringer
 	}
 }
 
